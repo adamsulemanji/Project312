@@ -1,4 +1,4 @@
-import numpy as np
+ahimport numpy as np
 import random
 import set
 
@@ -197,5 +197,5 @@ class Cache():
 
     
 
-
+print("HJHFJDHFJHDJFHDJHFJDHFJHDFJHDJFHJDH")
 
