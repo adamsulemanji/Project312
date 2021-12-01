@@ -207,12 +207,3 @@ class Cache():
     print("eviction line:", evictionLine)
     print("ram address:", memIndex)
     print("data:", data)
-
-
-  
-
-
-
-
-    print("HJHFJDHFJHDJFHDJHFJDHFJHDFJHDJFHJDH")
-
