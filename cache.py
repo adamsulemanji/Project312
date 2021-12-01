@@ -2,8 +2,6 @@ import numpy as np
 import random
 import set
 
-print("one small change!")
-
 class Cache():
 
   def __init__(self) -> None:
