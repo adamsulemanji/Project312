@@ -260,6 +260,5 @@ class Cache():
       if counter >= self.msize:
         break
 
-    
-
-    
+  def cache_flush(self):
+    print("doing cache flush")
