@@ -196,3 +196,23 @@ class Cache():
     print("eviction line:", evictionLine)
     print("ram address:", addressIndex)
     print("data:", data)
+  
+  def cache_view():
+    print("cache size:",  self.csize)
+    print("data block size:", self.bsize)
+    print("associativity:", self.associativity)
+
+    if self.replacement == 1:
+      print("replacement policy:random_replacement")
+    else:
+      print("replacement policy:least_recently_used")
+
+    if self.writehit == 1:
+      print("write_hit_policy:write_through")
+    else:
+      print("write_hit_policy:write_back")
+    
+    if self.writemiss == 1:
+      print("write_miss_policy:write_allocate")
+    else:
+      print("write_miss_policy:no_write_allocate")
