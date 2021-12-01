@@ -54,6 +54,7 @@ class Cache():
     
     
     self.memory = self.memory[self.ramstart: self.ramend + 1]
+    self.msize = self.ramend - self.ramstart + 1
     print("'''\nmemory size:", len(self.memory), self.memory)
     print(self.ramstart, self.ramend, "\n'''")
 
@@ -102,7 +103,7 @@ class Cache():
     
 
     self.ssize = int(self.csize / (self.bsize * self.associativity))
-    self.msize = self.ramend - self.ramstart + 1
+    
 
     # s = log2S
     self.indexbits = int(np.log2(self.ssize))
@@ -137,7 +138,9 @@ class Cache():
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
     
     taghex = (hex(int(binary[0], 2))[2:]).upper()
-    converted = ["0" if len(taghex) == 1 else "" + taghex, int(binary[1], 2), int(binary[2], 2)]
+    print("taghex", taghex)
+    converted = [("0" if len(taghex) == 1 else "") + taghex, int(binary[1], 2), int(binary[2], 2)]
+    print("converted:", converted)
     return converted
 
   # finding the memory block of size self.bsize that contains the data in memory.
@@ -194,7 +197,7 @@ class Cache():
 
       print("inputting new block of memory into cache at line index {}, where index used a certain replacement policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, addressBlockOffset, block)
-
+    
 
 
     print("set:", addressSetIndex)
@@ -202,7 +205,7 @@ class Cache():
     print("hit:", "yes" if hit else "no")
     print("eviction line:", evictionLine)
     print("ram address:", addressIndex)
-    print("data:", data)
+    print("data:", data, "\n")
   
   def cache_view(self):
     print("cache size:",  self.csize)
@@ -224,6 +227,9 @@ class Cache():
     else:
       print("write_miss_policy:no_write_allocate")
 
+    # print("replacement policy:", end="")
+    # print("random_replacement" if self.replacement == 1 else "least_recently_used")
+
     print("cache content:")
     for set in self.cache:
       for line in set.getLines():
@@ -234,29 +240,26 @@ class Cache():
           print(val, end = " ")
         print()
   
-  def memory_dump(self):
+  def memory_view(self):
     print("memory_size:", self.msize)
     print("memory_content:")
     print("address:data") 
     counter = 0
     while True:
-      if counter > self.msize:
-        break
-      hexNum = hex(self.ramstart + counter).upper()
-      hexNum = "0" if len(hexNum) == 1 else ""
-      print(hex(self.ramstart + counter), ":", end = " ", sep = "")
+      hexNum = hex(self.ramstart + counter)
+
+      print("{}{}: ".format(hexNum[0:2], hexNum[2:].upper().zfill(2)), end = "")
+      
+      # print(hexNum, ":", end = " ", sep = "")
       vals = self.memory[0 + counter: 8 + counter]
       for h in vals:
-        print(h, end =" ")
+        print(h, end = " ")
       print()
       counter += 8
-      
 
-      
-        
-        # self.blocks.append(self.memory[i: i + self.bsize])
+      if counter >= self.msize:
+        break
 
-    # print("replacement policy:", end="")
-    # print("random_replacement" if self.replacement == 1 else "least_recently_used")
+    
 
     
