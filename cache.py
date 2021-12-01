@@ -72,15 +72,32 @@ class Cache():
 
 
     while True:
-      self.associativity = int(input("associativity: "))
-      if self.associativity in [1, 2, 4]:
+      associtiativity = int(input("associativity: "))
+      if associtiativity in [1, 2, 4]:
         break
       else:
         print("ERROR: invalid associativity")
     
-    self.replacement = int(input("replacement policy: "))
-    self.writehit = int(input("write hit policy: "))
-    self.writemiss = int(input("write miss policy: "))
+    while True:
+      replacement = int(input("replacement policy: "))
+      if replacement in [1,2]:
+        break
+      else:
+        print("ERROR: invalid replace policy")
+
+    while True:
+      writehit = int(input("write hit policy: "))
+      if writehit in [1,2]:
+        break
+      else:
+        print("ERROR: write hit policy")
+
+    while True:
+      writemiss = int(input("write miss policy: "))
+      if writemiss in [1,2]:
+        break
+      else:
+        print("ERROR: write miss policy")
     
 
     self.ssize = int(self.csize / (self.bsize * self.associativity))
