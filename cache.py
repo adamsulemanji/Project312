@@ -137,7 +137,7 @@ class Cache():
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
     
     taghex = (hex(int(binary[0], 2))[2:]).upper()
-    converted = [taghex + "0" if len(taghex) == 1 else "", int(binary[1], 2), int(binary[2], 2)]
+    converted = ["0" if len(taghex) == 1 else "" + taghex, int(binary[1], 2), int(binary[2], 2)]
     return converted
 
   # finding the memory block of size self.bsize that contains the data in memory.
@@ -242,13 +242,14 @@ class Cache():
     while True:
       if counter > self.msize:
         break
-      print(hex(self.ramstart,16 + counter), ":", end = " ", sep = "")
+      hexNum = hex(self.ramstart + counter).upper()
+      hexNum = "0" if len(hexNum) == 1 else ""
+      print(hex(self.ramstart + counter), ":", end = " ", sep = "")
       vals = self.memory[0 + counter: 8 + counter]
       for h in vals:
         print(h, end =" ")
       print()
       counter += 8
-
       
 
       
