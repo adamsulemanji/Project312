@@ -10,3 +10,9 @@ class Set():
 
   def getLines(self):
     return self.lines
+
+  def isFull(self):
+    for line in self.lines:
+      if line.attributes()[1] == 0:
+        return False
+    return True
