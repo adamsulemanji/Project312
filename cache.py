@@ -245,9 +245,9 @@ class Cache():
       hexNum = hex(self.ramstart + counter).upper()
       hexNum = "0" if len(hexNum) == 1 else ""
       print(hex(self.ramstart + counter), ":", end = " ", sep = "")
-      vals = self.memory[0 + counter: 8 + counter]
-      for h in vals:
-        print(h, end =" ")
+      memblocks = self.memory[0 + counter: 8 + counter]
+      for info in memblocks:
+        print(info, end =" ")
       print()
       counter += 8
       
