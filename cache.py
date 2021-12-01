@@ -30,6 +30,10 @@ class Cache():
     self.ramend = 0
     
 
+    #cache hits and misses
+    self.hits = 0
+    self.miss = 0
+
   
   def initialize_memory(self, filename):
     print("intialize the RAM:")
