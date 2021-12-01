@@ -195,7 +195,7 @@ class Cache():
   for i in range(10):
     print(i)
 
-
+print("doing something different")
 
 
 
