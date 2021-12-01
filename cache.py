@@ -72,29 +72,29 @@ class Cache():
 
 
     while True:
-      associtiativity = int(input("associativity: "))
-      if associtiativity in [1, 2, 4]:
+      self.associtiativity = int(input("associativity: "))
+      if self.associtiativity in [1, 2, 4]:
         break
       else:
         print("ERROR: invalid associativity")
     
     while True:
-      replacement = int(input("replacement policy: "))
-      if replacement in [1,2]:
+      self.replacement = int(input("replacement policy: "))
+      if self.replacement in [1,2]:
         break
       else:
         print("ERROR: invalid replace policy")
 
     while True:
-      writehit = int(input("write hit policy: "))
-      if writehit in [1,2]:
+      self.writehit = int(input("write hit policy: "))
+      if self.writehit in [1,2]:
         break
       else:
         print("ERROR: write hit policy")
 
     while True:
-      writemiss = int(input("write miss policy: "))
-      if writemiss in [1,2]:
+      self.writemiss = int(input("write miss policy: "))
+      if self.writemiss in [1,2]:
         break
       else:
         print("ERROR: write miss policy")
@@ -201,7 +201,7 @@ class Cache():
     print("ram address:", addressIndex)
     print("data:", data)
   
-  def cache_view():
+  def cache_view(self):
     print("cache size:",  self.csize)
     print("data block size:", self.bsize)
     print("associativity:", self.associativity)
@@ -220,3 +220,12 @@ class Cache():
       print("write_miss_policy:write_allocate")
     else:
       print("write_miss_policy:no_write_allocate")
+
+    # print("replacement policy:", end="")
+    # print("random_replacement" if self.replacement == 1 else "least_recently_used")
+
+    print("cache content:")
+    for set in self.cache:
+      for line in set.getLines():
+        attributes = line.attributes()
+        print(attributes[0], attributes[1], attributes[2], (data for data in attributes[3]))
