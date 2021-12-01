@@ -224,9 +224,6 @@ class Cache():
     else:
       print("write_miss_policy:no_write_allocate")
 
-    # print("replacement policy:", end="")
-    # print("random_replacement" if self.replacement == 1 else "least_recently_used")
-
     print("cache content:")
     for set in self.cache:
       for line in set.getLines():
@@ -236,4 +233,27 @@ class Cache():
         for val in vals:
           print(val, end = " ")
         print()
+  
+  def memory_dump(self):
+    print("memory_size:", self.msize)
+    print("memory_content:")
+    print("address:data") 
+    counter = 0
+    while True:
+      if counter > self.msize:
+        break
+      print("0x", hex(int(self.ramstart,16) + counter), ":", end = " ")
+      vals = self.memory[0 + counter: 8 + counter]
+      for h in vals:
+        print(h, end =" ")
+      counter += 8
       
+
+      
+        
+        # self.blocks.append(self.memory[i: i + self.bsize])
+
+    # print("replacement policy:", end="")
+    # print("random_replacement" if self.replacement == 1 else "least_recently_used")
+
+    
