@@ -201,7 +201,7 @@ class Cache():
     print("ram address:", addressIndex)
     print("data:", data)
   
-  def cache_view():
+  def cache_view(self):
     print("cache size:",  self.csize)
     print("data block size:", self.bsize)
     print("associativity:", self.associativity)
@@ -220,3 +220,22 @@ class Cache():
       print("write_miss_policy:write_allocate")
     else:
       print("write_miss_policy:no_write_allocate")
+  
+  def memory_dump(self):
+    print("memory_size:"self.msize)
+    print("memory_content:")
+    print("address:data") 
+    counter = 0
+    while True:
+      if counter > self.msize:
+        break
+      print("0x", hex(int(self.ramstart,16) + counter), ":" end = " ")
+      vals = self.memory[0 + counter: 8 + counter]
+      for h in vals:
+        print(h, end =" ")
+      counter += 8
+      
+
+      
+        
+        # self.blocks.append(self.memory[i: i + self.bsize])
