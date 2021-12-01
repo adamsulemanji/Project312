@@ -74,29 +74,25 @@ class Cache():
 
     while True:
       self.associativity = int(input("associativity: "))
-      if self.associativity in [1, 2, 4]:
-        break
+      if self.associativity in [1, 2, 4]: break
       else:
         print("ERROR: invalid associativity")
     
     while True:
       self.replacement = int(input("replacement policy: "))
-      if self.replacement in [1,2]:
-        break
+      if self.replacement in [1,2]: break
       else:
         print("ERROR: invalid replace policy")
 
     while True:
       self.writehit = int(input("write hit policy: "))
-      if self.writehit in [1,2]:
-        break
+      if self.writehit in [1,2]: break
       else:
         print("ERROR: write hit policy")
 
     while True:
       self.writemiss = int(input("write miss policy: "))
-      if self.writemiss in [1,2]:
-        break
+      if self.writemiss in [1,2]: break
       else:
         print("ERROR: write miss policy")
     
@@ -247,10 +243,7 @@ class Cache():
     counter = 0
     while True:
       hexNum = hex(self.ramstart + counter)
-
       print("{}{}: ".format(hexNum[0:2], hexNum[2:].upper().zfill(2)), end = "")
-      
-      # print(hexNum, ":", end = " ", sep = "")
       vals = self.memory[0 + counter: 8 + counter]
       for h in vals:
         print(h, end = " ")
@@ -261,4 +254,18 @@ class Cache():
         break
 
   def cache_flush(self):
-    print("doing cache flush")
+    for set in self.cache:
+      for line in set.getLines():
+        line.flush(self.bsize)
+    print("cache_cleared")
+
+  def cache_dump(self):
+    print("doing cache dump")
+    for set in self.cache:
+      for line in set.getLines():
+        attributes = line.attributes()
+        for data in attributes[3]:
+          print(data, end = " ")
+        print()
+
+        

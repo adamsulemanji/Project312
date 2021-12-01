@@ -20,6 +20,10 @@ def main():
   c.cache_read(input("type one command: ").split()[1])
 
   c.cache_view()
+  c.cache_dump()
+  c.cache_flush()
+  c.cache_view()
+  
   
 
 

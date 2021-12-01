@@ -15,3 +15,6 @@ class Line():
     self.valid = 1
     self.tag = tag
     self.block = data
+
+  def flush(self, blockSize):
+    self.__init__(blockSize)
