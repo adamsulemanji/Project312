@@ -137,10 +137,9 @@ class Cache():
   def binarySplit(self, addressIndex):
     binary = bin(int(addressIndex, 16))[2:].zfill(8)
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
-    print("binary =", binary)
     taghex = (hex(int(binary[0], 2))[2:]).upper()
-    print(taghex)
-    converted = [("0" if len(taghex) == 1 else "") + taghex, int(binary[1], 2), int(binary[2], 2)]
+    
+    converted = [("0" if len(taghex) == 1 else "") + taghex, 0 if len(binary[1]) == 0 else int(binary[1], 2), int(binary[2], 2)]
     return converted
 
   # finding the memory block of size self.bsize that contains the data in memory.
@@ -236,7 +235,7 @@ class Cache():
       for line in set.getLines():
         attributes = line.attributes()
         vals = attributes[3]
-        print("1" if attributes[0] else "0", attributes[1], attributes[2], end = " ")
+        print(attributes[0], attributes[1], attributes[2], end = " ")
         for val in vals:
           print(val, end = " ")
         print()

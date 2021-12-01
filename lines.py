@@ -12,6 +12,6 @@ class Line():
     return (self.valid, self.dirty, self.tag, self.block)
 
   def update_line(self, tag, offset, data):
-    self.valid = True
+    self.valid = 1
     self.tag = tag
     self.block = data
