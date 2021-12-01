@@ -159,8 +159,9 @@ class Cache():
     lines = set.getLines()
 
     hit = False
+    replace = True
     data = None
-    evictionLine = -1
+    evictionLine = 0
     
     for line in lines:
       # hex, hex, list(hex)
@@ -169,13 +170,30 @@ class Cache():
 
       if lineValid == 1 and lineTag == addressTag:
         # cache hit, obtain data from the cache @ particular set -> index -> offset
+        print("cache hit, data is found at the correct set and appropriate line respective of tag.")
         hit = True
         data = "0x" + lineBlock[addressBlockOffset]
         addressIndex = -1
+        evictionLine = -1
+        replace = False
         break
 
-    if not hit:
-      # cache miss, insert into 1st line for associativity = 1, else do replacement policy
+      elif lineValid == 0 and not set.isFull():
+        # cache miss but can fill empty lines in the specific set
+        print("cache miss, tags are not equal but set is not full. fill empty lines")
+        data = "0x" + str(self.memory[int(addressIndex, 16)])
+        line.update_line(addressTag, addressBlockOffset, self.findBlock(addressIndex[2:]))
+        replace = False
+        break
+      
+      else:
+        evictionLine += 1
+
+
+
+    if not hit and set.isFull() and replace:
+      # cache miss and all lines in specific set are filled. consult policy for replacement
+      print("cache miss. tags are not equal but set is full. invoke replacement policy")
 
       # obtain the data from memory indexed by memory address (hexa) converted to binary
       data = "0x" + str(self.memory[int(addressIndex, 16)])
@@ -260,7 +278,6 @@ class Cache():
     print("cache_cleared")
 
   def cache_dump(self):
-    print("doing cache dump")
     for set in self.cache:
       for line in set.getLines():
         attributes = line.attributes()
@@ -268,4 +285,6 @@ class Cache():
           print(data, end = " ")
         print()
 
-        
+  def memory_dump(self):
+    for data in self.memory:
+      print(data)
