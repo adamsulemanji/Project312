@@ -37,12 +37,8 @@ class Cache():
     file = open(filename, 'r')
     lines = file.readlines()
 
-    # memory = [bin(int(hexLine, 16))[2:].zfill(8) for hexLine in lines] TO CONVERT TO BINARY
+    # change: store the hex values instead of binary
     self.memory = [hexLine[:2] for hexLine in lines]
-
-    #for hexLine in lines:
-    #  binLine = bin(int(hexLine, 16))[2:].zfill(8)
-    #  print(binLine)
 
     # checks for number validity
     valid = False
@@ -52,10 +48,10 @@ class Cache():
       if (self.ramstart <= self.ramend):
         break
     
-    self.msize = self.ramend - self.ramstart + 1
+    
     self.memory = self.memory[self.ramstart: self.ramend + 1]
     print("'''\nmemory size:", len(self.memory), self.memory)
-    print(self.ramstart, self.ramend, self.msize, "\n'''")
+    print(self.ramstart, self.ramend, "\n'''")
 
     print("RAM successfully initialized!\n")
     # take that input, and initialize with ram, memory address 0x00 the data in the address is 08, put that in dictionary/vector (choose the container that outputs in sorted order)
@@ -101,9 +97,13 @@ class Cache():
     
 
     self.ssize = int(self.csize / (self.bsize * self.associativity))
+    self.msize = self.ramend - self.ramstart + 1
+
+    # s = log2S
     self.indexbits = int(np.log2(self.ssize))
+    # b = log2B
     self.offsetbits = int(np.log2(self.bsize))
-    
+    # t = log2M (i.e. m) - (s + b)
     self.tagbits = int(np.log2(self.msize)) - (self.indexbits + self.offsetbits)
 
     print("\ncache size", self.csize)
@@ -114,11 +114,11 @@ class Cache():
 
     
     print("cache successfully configured!")
-    # print and take input
-    #
-    #
+    
+    # defining cache as a list of sets, for each set pass (associativity (number of lines), block size, set index)
     self.cache = [set.Set(self.associativity, self.bsize, i) for i in range (self.ssize)]
   
+    # defines the blocks of memory that we would overwrite/push into cache following a cache read miss. refer to notes
     for i in range(0, self.msize, self.bsize):
       self.blocks.append(self.memory[i: i + self.bsize])
       
@@ -127,46 +127,29 @@ class Cache():
     # if there's a read miss, write the address
 
   # obtaining the bits for tag, index, and offset in hexa, int, int respectively
-  def binarySplit(self, memIndex):
-    binary = bin(int(memIndex, 16))[2:].zfill(8)
+  def binarySplit(self, addressIndex):
+    binary = bin(int(addressIndex, 16))[2:].zfill(8)
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
     converted = [(hex(int(binary[0], 2))[2:]).upper(), int(binary[1], 2), int(binary[2], 2)]
     return converted
 
-
+  # finding the memory block of size self.bsize that contains the data in memory.
   def findBlock(self, address):
-    # finding the block of size self.bsize that contains the data in memory.
+    # was initially a longer function but i found a way to condense.
     return self.blocks[int(int(address, 16) / self.bsize)]        
 
-    # iterate through entire memory cache and find each memory index's tag, index, offset bits
-    # for address in range(self.msize):
-    #   (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(str(hex(address)))
-
-    #   # memory is contiguous, so when first instance of equivalent tag and index is found, 
-    #   # the following memory of length self.bsize is the memory block that contains the data in memory.
-    #   if addressTag == tag and addressSetIndex == setIndex:
-    #     # we found the start of the block
-    #     print("START OF BLOCK IS ", address)
-        
-    #     # store the following memory of length self.bsize into our "block"
-    #     for offset in range(self.bsize):
-    #       block.append(self.memory[index + offset])
-    #     break
-    #   else:
-    #     index += 1
-
     
-  def cache_read(self, memIndex):
+  def cache_read(self, addressIndex):
     print("bits:", self.tagbits, self.indexbits, self.offsetbits)
 
     # hexa, int, int
-    (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(memIndex)
+    (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(addressIndex)
     print("address: tag {} set index {} block offset {}".format(addressTag, addressSetIndex, addressBlockOffset))
 
     # obtaining the set at the set index it should be in
     set = self.cache[addressSetIndex]
 
-    # for x-way associativity
+    # obtains (x-way associativity) x lines within the specified set
     lines = set.getLines()
 
     hit = False
@@ -182,21 +165,27 @@ class Cache():
         # cache hit, obtain data from the cache @ particular set -> index -> offset
         hit = True
         data = "0x" + lineBlock[addressBlockOffset]
-        memIndex = -1
+        addressIndex = -1
         break
 
     if not hit:
       # cache miss, insert into 1st line for associativity = 1, else do replacement policy
 
       # obtain the data from memory indexed by memory address (hexa) converted to binary
-      data = "0x" + str(self.memory[int(memIndex, 16)])
+      data = "0x" + str(self.memory[int(addressIndex, 16)])
 
       # obtain the block of memory (of size blocksize) for line replacement
-      block = self.findBlock(memIndex[2:])
+      block = self.findBlock(addressIndex[2:])
 
-      # invoke replacement policy
-      evictionLine = random.randint(0, self.associativity - 1)
-      print("inputting new block of memory into cache at random line index {}".format(evictionLine))
+      # invoke specified replacement policy
+      if self.replacement == 1:
+        # invoke random replacement
+        evictionLine = random.randint(0, self.associativity - 1)
+      if self.replacement == 2:
+        # FIX NEEDED: invoke least recently used policy
+        evictionLine = random.randint(0, self.associativity - 1)
+
+      print("inputting new block of memory into cache at line index {}, where index used a certain replacement policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, addressBlockOffset, block)
 
 
@@ -205,5 +194,5 @@ class Cache():
     print("tag:", addressTag)
     print("hit:", "yes" if hit else "no")
     print("eviction line:", evictionLine)
-    print("ram address:", memIndex)
+    print("ram address:", addressIndex)
     print("data:", data)
