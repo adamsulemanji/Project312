@@ -9,7 +9,7 @@ class Line():
     self.block = ['00' for i in range(blockSize)]
 
   def attributes(self):
-    return (self.valid, self.dirty, self.tag, self.block)
+    return (self.dirty, self.valid, self.tag, self.block)
 
   def update_line(self, tag, offset, data):
     self.valid = 1

@@ -139,7 +139,7 @@ class Cache():
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
     taghex = (hex(int(binary[0], 2))[2:]).upper()
     
-    converted = [("0" if len(taghex) == 1 else "") + taghex, 0 if len(binary[1]) == 0 else int(binary[1], 2), int(binary[2], 2)]
+    converted = [taghex.zfill(2), 0 if len(binary[1]) == 0 else int(binary[1], 2), int(binary[2], 2)]
     return converted
 
   # finding the memory block of size self.bsize that contains the data in memory.
@@ -168,7 +168,7 @@ class Cache():
     
     for line in lines:
       # hex, hex, list(hex)
-      (lineValid, lineDirty, lineTag, lineBlock) = line.attributes()
+      (lineValid, lineTag, lineBlock) = line.attributes()[1:]
       print("line: valid {} tag {} block {}".format(lineValid, lineTag, lineBlock))
 
       if lineValid == 1 and lineTag == addressTag:
