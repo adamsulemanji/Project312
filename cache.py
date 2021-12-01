@@ -242,11 +242,13 @@ class Cache():
     while True:
       if counter > self.msize:
         break
-      print("0x", hex(int(self.ramstart,16) + counter), ":", end = " ")
+      print(hex(self.ramstart,16 + counter), ":", end = " ", sep = "")
       vals = self.memory[0 + counter: 8 + counter]
       for h in vals:
         print(h, end =" ")
+      print()
       counter += 8
+
       
 
       
