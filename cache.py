@@ -47,7 +47,7 @@ class Cache():
     # checks for number validity
     valid = False
     while not valid:
-      bleh, self.ramstart, self.ramend = input().split()
+      self.ramstart, self.ramend = input().split()[1:]
       self.ramstart, self.ramend = int(self.ramstart[2:], 16), int(self.ramend[2:], 16)
       if (self.ramstart <= self.ramend):
         break
@@ -114,12 +114,13 @@ class Cache():
 
     print("\ncache size", self.csize)
     print("number of sets:", self.ssize)
+    print("memory size: ", self.msize)
     print("number of lines in each set", self.associativity)
     print("number of blocks in each line", self.bsize)
     print("tag {}, index {}, offset {}".format(self.tagbits, self.indexbits, self.offsetbits))
 
     
-    print("cache successfully configured!")
+    print("cache successfully configured!\n")
     
     # defining cache as a list of sets, for each set pass (associativity (number of lines), block size, set index)
     self.cache = [set.Set(self.associativity, self.bsize, i) for i in range (self.ssize)]
@@ -136,25 +137,25 @@ class Cache():
   def binarySplit(self, addressIndex):
     binary = bin(int(addressIndex, 16))[2:].zfill(8)
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
-    
+    print("binary =", binary)
     taghex = (hex(int(binary[0], 2))[2:]).upper()
-    print("taghex", taghex)
+    print(taghex)
     converted = [("0" if len(taghex) == 1 else "") + taghex, int(binary[1], 2), int(binary[2], 2)]
-    print("converted:", converted)
     return converted
 
   # finding the memory block of size self.bsize that contains the data in memory.
-  def findBlock(self, address):
+  def findBlock(self, address): 
     # was initially a longer function but i found a way to condense.
     return self.blocks[int(int(address, 16) / self.bsize)]        
 
     
   def cache_read(self, addressIndex):
-    print("bits:", self.tagbits, self.indexbits, self.offsetbits)
+    
 
     # hexa, int, int
     (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(addressIndex)
-    print("address: tag {} set index {} block offset {}".format(addressTag, addressSetIndex, addressBlockOffset))
+    print("address bits: tag {} set index {} block offset {}".format(self.tagbits, self.indexbits, self.offsetbits))
+    print("address {} in binary {}: tag {} set index {} block offset {}".format(addressIndex, bin(int(addressIndex, 16)), addressTag, addressSetIndex, addressBlockOffset))
 
     # obtaining the set at the set index it should be in
     set = self.cache[addressSetIndex]
