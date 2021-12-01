@@ -18,6 +18,7 @@ def main():
   c.cache_read(input("type one command: ").split()[1])
 
   c.cache_view()
+  c.memory_dump()
 
 
 main()
