@@ -285,15 +285,14 @@ class Cache():
       # cache miss
       print("cache miss, set doesn't contain line containing the address.")     
 
-      if self.writemiss == 2 or self.writemiss == 1 and self.writehit == 2:
-        dirty = 1 
+      dirty = 1 if self.writemiss == 1 and self.writehit == 2 else 0
 
       if self.writemiss == 1:
         # write allocate. load data from RAM (before updating) using replacement policy to cache, followed by write hit action 
         print("write allocate. loading block from RAM (before updating data) to cache using replacement")
         evictionLine = self.replacement_policy(address, set, addressTag, "write")
 
-        # write-hit action always writes data to cache
+        # following a write-allocate miss, write-hit action always writes data to cache
         print("updating the block in cache with new data.")
         lineBlock = lines[evictionLine].attributes()[3]
         lineBlock[addressBlockOffset] = data[2:]
