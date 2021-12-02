@@ -1,4 +1,10 @@
-
+# File: main.py
+# Author(s): Adam Sulemanji and Tristan Nigos
+# Date: 12/01/2021
+# Section: 505 
+# E-mail(s): adamsulemanji@tamu.edu tristanigos@tamu.edu
+# Description:
+# e.g., The content of this file implements main.py file
 
 import cache
 import set
