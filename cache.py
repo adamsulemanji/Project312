@@ -209,15 +209,19 @@ class Cache():
       # obtain the data from memory (which will be stored in the cache) indexed by memory address (hexa) converted to binary
       data = "0x" + str(self.memory[int(address, 16)])
 
-    print("set:", addressSetIndex)
-    print("tag:", addressTag)
-    print("hit:", "yes" if hit else "no")
-    print("eviction line:", evictionLine)
-    print("ram address:", address)
-    print("data:", data, "\n")
+    self.hitmiss_print([addressSetIndex, addressTag, hit, evictionLine, address, data])
+    
     self.recentIndex += 1
 
-
+  def hitmiss_print(self, array):
+    print("set:", array[0])
+    print("tag:", array[1])
+    print("hit:", "yes" if array[2] else "no")
+    print("eviction line:", array[3])
+    print("ram address:", array[4])
+    print("data:", array[5])
+    print("dirty bit: {}".format(array[6]) if len(array) == 7 else "")
+    
 
   def cache_write(self, address, data):
     # the cache-write command writes data to an address in the cache.
@@ -289,14 +293,9 @@ class Cache():
       else:
         print("not writing data to RAM, therefore it's dirty")
 
-    print("set:", addressSetIndex)
-    print("tag:", addressTag)
-    print("hit:", "yes" if hit else "no")
-    print("eviction line:", evictionLine)
-    print("ram address:", address)
-    print("data:", data)
-    print("dirty bit:", dirty)
+    self.hitmiss_print([addressSetIndex, addressTag, hit, evictionLine, address, data, dirty])
     self.recentIndex += 1
+
 
 
   def cache_view(self):
@@ -318,6 +317,7 @@ class Cache():
         print(attributes[1], attributes[0], attributes[2], end = " ")
         for val in vals:
           print(val, end = " ")
+        print()
         # print(attributes[4])
   
 
