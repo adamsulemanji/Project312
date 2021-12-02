@@ -148,22 +148,35 @@ class Cache():
 
 
 
-  def replacement_policy(self, address, lines, addressTag, rw):
+  def replacement_policy(self, address, set, addressTag, rw):
     print("cache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
 
+    lines = set.getLines()
     # obtain the block of memory (of size blocksize) for line replacement
     block = self.findBlock(address[2:])
-    evictionLine = None
+    evictionLine = 0
+
+    ### FIX
     dirty = 0 if rw == "read" else 1
 
+
+    if not set.isFull():
+      for line in lines:
+        lineValid = line.attributes()[1]
+        if lineValid == 0:
+          print("cache miss, tags are not equal but set is not full. found an empty line. fill empty line")
+          lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+          break
+        else:
+          evictionLine += 1
+
     # invoke specified replacement policy
-    if self.replacement == 1:
+    elif self.replacement == 1:
       # invoke random replacement
       evictionLine = random.randint(0, self.associativity - 1)
       print("DIRTY {} inputting new block of memory into cache at line index {}, where index used random replacement policy".format(dirty, evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-    if self.replacement == 2:
-      # FIX NEEDED: invoke least recently used policy
+    elif self.replacement == 2:
       evictionLine, index = 0, 0
       lruIndex = lines[0].attributes()[4]
 
@@ -212,22 +225,21 @@ class Cache():
         replace = False
         break
 
-      elif lineValid == 0 and not set.isFull():
-        # cache miss but can fill empty lines in the specific set
-        print("cache miss, tags are not equal but set is not full. found an empty line. fill empty line")
-        data = "0x" + str(self.memory[int(address, 16)])
-        line.update_line(addressTag, self.findBlock(address[2:]), 0, self.recentIndex)
-        replace = False
-        break
+      # elif lineValid == 0 and not set.isFull():
+      #   # cache miss but can fill empty lines in the specific set
+        
+      #   data = "0x" + str(self.memory[int(address, 16)])
+      #   line.update_line(addressTag, self.findBlock(address[2:]), 0, self.recentIndex)
+      #   replace = False
+      #   break
 
-      else:
-        evictionLine += 1
+      # else:
+      #   evictionLine += 1
 
 
-    if not hit and set.isFull() and replace:
+    if not hit:
       # cache miss and all lines in specific set are filled. consult policy for replacement
-      print("cache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
-      evictionLine = self.replacement_policy(address, lines, addressTag, "read")
+      evictionLine = self.replacement_policy(address, set, addressTag, "read")
 
       # obtain the data from memory (which will be stored in the cache) indexed by memory address (hexa) converted to binary
       data = "0x" + str(self.memory[int(address, 16)])
@@ -270,32 +282,43 @@ class Cache():
         # write data to block in cache
         lineBlock[addressBlockOffset] = data[2:]
 
-        # write data to block in memory convert address to decimal and replace memory[address] to data
-        self.memory[int(address, 16)] = data[2:] if self.writehit == 1 else self.memory[int(address, 16)]
+        dirty = 1 if self.writehit == 2 else 0
 
-        # update block which is underlied by memory
-        self.findBlock(address[2:])[addressBlockOffset] = data[2:]
+        if self.writehit == 1:
+          # write-through, write the data to block in RAM
+          self.memory[int(address, 16)] = data[2:]
+
+          # update block which is underlied by memory
+          self.findBlock(address[2:])[addressBlockOffset] = data[2:]
 
         # update line, specifically dirty bit
-        line.update_line(addressTag, self.findBlock(address[2:]), 1 if self.writehit == 2 else 0, self.recentIndex)
+        line.update_line(addressTag, self.findBlock(address[2:]), dirty, self.recentIndex)
 
         break
+
+      elif lineValid == 0 and not set.isFull():
+        # cache miss but can fill empty lines in the specific set
+        print("cache miss, tags are not equal but set is not full. found an empty line. fill empty line")
+
+        
+        break
+
     
     if not hit:
       # cache miss
-      print("cache miss")
+      print("cache miss")      
+
       if self.writemiss == 1:
-        # write allocate. load data from RAM to cache, followed by write hit action 
-        evictionLine = self.replacement_policy(address, lines, addressTag, "write")
+        # write allocate. load data from RAM (before updating) using replacement policy to cache, followed by write hit action 
+        evictionLine = self.replacement_policy(address, set, addressTag, "write")
 
         # write through and write back both write to cache.
         lineBlock[addressBlockOffset] = data[2:]
 
-      # write through writes to block in ram, write back does not.
-      self.memory[int(address, 16)] = data[2:] if self.writehit == 1 else self.memory[int(address, 16)]
-
-      # update block which is underlied by memory
-      self.findBlock(address[2:])[addressBlockOffset] = data[2:]
+      if self.writehit == 1 or self.writemiss == 2:
+        self.memory[int(address, 16)] = data[2:]
+        # update block which is underlied by memory
+        self.findBlock(address[2:])[addressBlockOffset] = data[2:]
 
 
     print("set:", addressSetIndex)
