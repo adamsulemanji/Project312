@@ -49,11 +49,10 @@ def main():
     elif line[0] == "cache-dump":
       c.cache_dump()
     
-    elif line[0] == "memory_dump":
+    elif line[0] == "memory-dump":
       c.memory_dump()
 
     elif line[0] == "quit":
       break
-  
 
 main()

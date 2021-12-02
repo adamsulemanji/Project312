@@ -214,6 +214,7 @@ class Cache():
 
       if lineValid == 1 and lineTag == addressTag:
         # cache hit, obtain data from the cache @ particular set -> index -> offset
+        # self.hits += 1
         print("cache hit, tags are equal at an appropriate line. read data")
         hit = True
         line.update_line(addressTag, self.findBlock(address[2:]), 0, self.recentIndex)
@@ -224,6 +225,7 @@ class Cache():
 
 
     if not hit:
+      # self.miss += 1
       # cache miss and all lines in specific set are filled. consult policy for replacement
       evictionLine = self.replacement_policy(address, set, addressTag, "read")
 
@@ -372,15 +374,25 @@ class Cache():
 
 
   def cache_dump(self):
-    for set in self.cache:
-      for line in set.getLines():
-        attributes = line.attributes()
-        for data in attributes[3]:
-          print(data, end = " ")
-        print()
+    with open ("cache.txt", "w+") as file:
+      file.write("cache-dump")
+      file.write('\n')
+      for set in self.cache:
+        for line in set.getLines():
+          attributes = line.attributes()
+          for data in attributes[3]:
+            file.write(data)
+            file.write(" ")
+          #   print(data, end = " ")
+          file.write('\n')
 
 
 
   def memory_dump(self):
-    for data in self.memory:
-      print(data)
+    with open("ram.txt", "w+") as file:
+      file.truncate(0)
+      file.write("memory-dump")
+      file.write('\n')
+      for data in self.memory:
+        file.write(data)
+        file.write('\n')
