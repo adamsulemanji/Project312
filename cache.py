@@ -33,7 +33,7 @@ class Cache():
 
     #cache hits and misses
     self.hits = 0
-    self.miss = 0
+    self.misses = 0
 
   
   def initialize_memory(self, filename):
@@ -158,7 +158,6 @@ class Cache():
     if rw == "write":
       if self.writemiss == 2 or self.writemiss == 1 and self.writehit == 2:
         dirty = 1
-
 
     if not set.isFull():
       for line in lines:
@@ -288,15 +287,14 @@ class Cache():
       # cache miss
       print("cache miss, set doesn't contain line containing the address.")     
 
-      if self.writemiss == 2 or self.writemiss == 1 and self.writehit == 2:
-        dirty = 1 
+      dirty = 1 if self.writemiss == 1 and self.writehit == 2 else 0
 
       if self.writemiss == 1:
         # write allocate. load data from RAM (before updating) using replacement policy to cache, followed by write hit action 
         print("write allocate. loading block from RAM (before updating data) to cache using replacement")
         evictionLine = self.replacement_policy(address, set, addressTag, "write")
 
-        # write-hit action always writes data to cache
+        # following a write-allocate miss, write-hit action always writes data to cache
         print("updating the block in cache with new data.")
         lineBlock = lines[evictionLine].attributes()[3]
         lineBlock[addressBlockOffset] = data[2:]
@@ -319,7 +317,7 @@ class Cache():
     print("eviction line:", evictionLine)
     print("ram address:", address)
     print("data:", data)
-    print("dirty bit:", lines[evictionLine].attributes()[0])
+    print("dirty bit:", dirty)
     self.recentIndex += 1
 
 
@@ -331,8 +329,7 @@ class Cache():
     print("write_hit_policy: {}".format("write_through" if self.writehit == 1 else "write_back"))
     print("write_miss_policy: {}".format("write_allocate" if self.writemiss == 1 else "write_no_allocate"))
 
-    print("number_of_cache_hits:", self.hits, '\n', 
-    "number_of_cache_misses:", self.misses)
+    print("number_of_cache_hits:", self.hits, "\nnumber_of_cache_misses:", self.misses)
     
 
     print("cache content:")
