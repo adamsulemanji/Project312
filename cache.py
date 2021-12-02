@@ -53,7 +53,6 @@ class Cache():
       if (self.ramstart <= self.ramend):
         break
     
-    
     self.memory = self.memory[self.ramstart: self.ramend + 1]
     self.msize = self.ramend - self.ramstart + 1
     print("'''\nmemory size:", len(self.memory), self.memory)
@@ -97,11 +96,8 @@ class Cache():
       else:
         print("ERROR: write miss policy")
     
-    
-
+    # S = C / (E * B)
     self.ssize = int(self.csize / (self.bsize * self.associativity))
-    
-
     # s = log2S
     self.indexbits = int(np.log2(self.ssize))
     # b = log2B
@@ -109,6 +105,7 @@ class Cache():
     # t = log2M (i.e. m) - (s + b)
     self.tagbits = int(np.log2(self.msize)) - (self.indexbits + self.offsetbits)
 
+    # DELETE WHEN PROJECT COMPLETE
     print("\ncache size", self.csize)
     print("number of sets:", self.ssize)
     print("memory size: ", self.msize)
@@ -130,26 +127,31 @@ class Cache():
     # convert the ADDRESS to bits and will point to the location the address DATA will be stored.
     # if there's a read miss, write the address
 
+
+
   # obtaining the bits for tag, index, and offset in hexa, int, int respectively
-  def binarySplit(self, addressIndex):
-    binary = bin(int(addressIndex, 16))[2:].zfill(8)
+  def binarySplit(self, address):
+    binary = bin(int(address, 16))[2:].zfill(8)
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
     taghex = (hex(int(binary[0], 2))[2:]).upper()
     
     converted = [taghex.zfill(2), 0 if len(binary[1]) == 0 else int(binary[1], 2), int(binary[2], 2)]
     return converted
 
+
+
   # finding the memory block of size self.bsize that contains the data in memory.
   def findBlock(self, address): 
     # was initially a longer function but i found a way to condense.
     return self.blocks[int(int(address, 16) / self.bsize)]        
 
+
     
-  def cache_read(self, addressIndex):
+  def cache_read(self, address):
     # hexa, int, int
-    (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(addressIndex)
+    (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(address)
     print("address bits: tag {} set index {} block offset {}".format(self.tagbits, self.indexbits, self.offsetbits))
-    print("address {} in binary {}: tag {} set index {} block offset {}".format(addressIndex, bin(int(addressIndex, 16)), addressTag, addressSetIndex, addressBlockOffset))
+    print("address {} in binary {}: tag {} set index {} block offset {}".format(address, bin(int(address, 16)), addressTag, addressSetIndex, addressBlockOffset))
 
     # obtaining the set at the set index it should be in
     set = self.cache[addressSetIndex]
@@ -171,9 +173,9 @@ class Cache():
         # cache hit, obtain data from the cache @ particular set -> index -> offset
         print("cache hit, tags are equal at an appropriate line. read data")
         hit = True
-        line.update_line(addressTag, self.findBlock(addressIndex[2:]), self.readIndex)
+        line.update_line(addressTag, self.findBlock(address[2:]), self.readIndex)
         data = "0x" + lineBlock[addressBlockOffset]
-        addressIndex = -1
+        address = -1
         evictionLine = -1
         replace = False
         break
@@ -181,8 +183,8 @@ class Cache():
       elif lineValid == 0 and not set.isFull():
         # cache miss but can fill empty lines in the specific set
         print("cache miss, tags are not equal but set is not full. found an empty line. fill empty line")
-        data = "0x" + str(self.memory[int(addressIndex, 16)])
-        line.update_line(addressTag, self.findBlock(addressIndex[2:]), self.readIndex)
+        data = "0x" + str(self.memory[int(address, 16)])
+        line.update_line(addressTag, self.findBlock(address[2:]), self.readIndex)
         replace = False
         break
 
@@ -190,16 +192,15 @@ class Cache():
         evictionLine += 1
 
 
-
     if not hit and set.isFull() and replace:
       # cache miss and all lines in specific set are filled. consult policy for replacement
       print("cache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
 
-      # obtain the data from memory indexed by memory address (hexa) converted to binary
-      data = "0x" + str(self.memory[int(addressIndex, 16)])
+      # obtain the data from memory (which will be stored in the cache) indexed by memory address (hexa) converted to binary
+      data = "0x" + str(self.memory[int(address, 16)])
 
       # obtain the block of memory (of size blocksize) for line replacement
-      block = self.findBlock(addressIndex[2:])
+      block = self.findBlock(address[2:])
 
       # invoke specified replacement policy
       if self.replacement == 1:
@@ -220,20 +221,67 @@ class Cache():
           index += 1
         print("inputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
         lines[evictionLine].update_line(addressTag, block, self.readIndex)
-      
-
-      
-    
 
 
     print("set:", addressSetIndex)
     print("tag:", addressTag)
     print("hit:", "yes" if hit else "no")
     print("eviction line:", evictionLine)
-    print("ram address:", addressIndex)
+    print("ram address:", address)
     print("data:", data, "\n")
     self.readIndex += 1
   
+
+
+  def cache_write(self, address, data):
+    # the cache-write command writes data to an address in the cache.
+    (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(address)
+    print("address bits: tag {} set index {} block offset {}".format(self.tagbits, self.indexbits, self.offsetbits))
+    print("address {} in binary {}: tag {} set index {} block offset {}".format(address, bin(int(address, 16)), addressTag, addressSetIndex, addressBlockOffset))
+
+    # obtaining the set at the set index the address should be in
+    set = self.cache[addressSetIndex]
+
+    # obtains (x-way associativity) x lines within the specified set
+    lines = set.getLines()
+
+    hit = False
+    replace = True
+    evictionLine = 0
+    
+    # find the line with bits that correspond to the address bits 
+    for line in lines:
+      
+      (lineValid, lineTag, lineBlock) = line.attributes()[1:4]
+      print("line: valid {} tag {} block {}".format(lineValid, lineTag, lineBlock))
+
+      if lineValid == 1 and lineTag == addressTag:
+        # cache hit (address is found in the cache line)
+        hit = True
+        lineBlock[addressBlockOffset] = data[2:]
+
+        # convert address to decimal and replace memory[address] to data
+        self.memory[int(address, 16)] = data[2:] if self.writehit == 1 else self.memory[int(address, 16)]
+
+        # update block which is underlied by memory
+        self.findBlock(address[2:])[addressBlockOffset] = data[2:]
+
+        break
+    
+    if not hit:
+      # cache miss
+      print("cache miss)")
+
+
+    print("set:", addressSetIndex)
+    print("tag:", addressTag)
+    print("hit:", "yes" if hit else "no")
+    print("eviction line:", evictionLine)
+    print("ram address:", address)
+    print("data:", data, "\n")
+
+
+
   def cache_view(self):
     print("cache size:",  self.csize)
     print("data block size:", self.bsize)
@@ -267,6 +315,8 @@ class Cache():
           print(val, end = " ")
         print(attributes[4])
   
+
+
   def memory_view(self):
     print("memory_size:", self.msize)
     print("memory_content:")
@@ -284,11 +334,14 @@ class Cache():
       if counter >= self.msize:
         break
 
+
+
   def cache_flush(self):
     for set in self.cache:
       for line in set.getLines():
         line.flush(self.bsize)
     print("cache_cleared")
+
 
   def cache_dump(self):
     for set in self.cache:
@@ -297,6 +350,8 @@ class Cache():
         for data in attributes[3]:
           print(data, end = " ")
         print()
+
+
 
   def memory_dump(self):
     for data in self.memory:
