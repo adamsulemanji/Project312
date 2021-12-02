@@ -73,8 +73,12 @@ class Cache():
 
     ### do we have to check if sizes are in powers of 2?
     self.csize = int(input("cache size: "))
-    self.bsize = int(input("block size: "))
 
+    while True:
+      self.bsize = int(input("block size: "))
+      if self.bsize < self.csize: break
+      else:
+        print("ERROR: invalid block size")
 
     while True:
       self.associativity = int(input("associativity: "))
@@ -314,7 +318,6 @@ class Cache():
     print("replacement_policy: {}".format("random_replacement" if self.replacement == 1 else "least_recently_used"))
     print("write_hit_policy: {}".format("write_through" if self.writehit == 1 else "write_back"))
     print("write_miss_policy: {}".format("write_allocate" if self.writemiss == 1 else "write_no_allocate"))
-
     print("number_of_cache_hits:", self.hits, "\nnumber_of_cache_misses:", self.misses)
     
 
