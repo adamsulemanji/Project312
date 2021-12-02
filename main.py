@@ -54,6 +54,9 @@ def main():
 
     elif line[0] == "quit":
       break
+
+    else:
+      print("invalid command, try again.")
   
 
 main()

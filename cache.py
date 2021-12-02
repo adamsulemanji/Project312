@@ -55,9 +55,6 @@ class Cache():
     
     self.memory = self.memory[self.ramstart: self.ramend + 1]
     self.msize = self.ramend - self.ramstart + 1
-    print("'''\nmemory size:", len(self.memory), self.memory)
-    print(self.ramstart, self.ramend, "\n'''")
-
     print("RAM successfully initialized!\n")
     # take that input, and initialize with ram, memory address 0x00 the data in the address is 08, put that in dictionary/vector (choose the container that outputs in sorted order)
 
@@ -122,10 +119,6 @@ class Cache():
     # defines the blocks of memory that we would overwrite/push into cache following a cache read miss. refer to notes
     for i in range(0, self.msize, self.bsize):
       self.blocks.append(self.memory[i: i + self.bsize])
-      
-
-    # convert the ADDRESS to bits and will point to the location the address DATA will be stored.
-    # if there's a read miss, write the address
 
 
 
@@ -147,17 +140,11 @@ class Cache():
 
 
 
-  def replacement_policy(self, address, set, addressTag, rw):
+  def replacement_policy(self, address, set, addressTag, dirty):
     lines = set.getLines()
     # obtain the block of memory (of size blocksize) for line replacement
     block = self.findBlock(address[2:])
     evictionLine = 0
-
-    ### FIX
-    dirty = 0
-    if rw == "write":
-      if self.writemiss == 2 or self.writemiss == 1 and self.writehit == 2:
-        dirty = 1
 
     if not set.isFull():
       for line in lines:
@@ -224,7 +211,7 @@ class Cache():
 
     if not hit:
       # cache miss and all lines in specific set are filled. consult policy for replacement
-      evictionLine = self.replacement_policy(address, set, addressTag, "read")
+      evictionLine = self.replacement_policy(address, set, addressTag, 0)
 
       # obtain the data from memory (which will be stored in the cache) indexed by memory address (hexa) converted to binary
       data = "0x" + str(self.memory[int(address, 16)])
@@ -290,7 +277,7 @@ class Cache():
       if self.writemiss == 1:
         # write allocate. load data from RAM (before updating) using replacement policy to cache, followed by write hit action 
         print("write allocate. loading block from RAM (before updating data) to cache using replacement")
-        evictionLine = self.replacement_policy(address, set, addressTag, "write")
+        evictionLine = self.replacement_policy(address, set, addressTag, dirty)
 
         # following a write-allocate miss, write-hit action always writes data to cache
         print("updating the block in cache with new data.")
