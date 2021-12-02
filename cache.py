@@ -198,8 +198,8 @@ class Cache():
 
       if lineValid == 1 and lineTag == addressTag:
         # cache hit, obtain data from the cache @ particular set -> index -> offset
-        # self.hits += 1
         print("cache hit, tags are equal at an appropriate line. read data")
+        self.hits += 1
         hit = True
         line.update_line(addressTag, self.findBlock(address[2:]), 0, self.recentIndex)
         data = "0x" + lineBlock[addressBlockOffset]
@@ -209,7 +209,7 @@ class Cache():
 
 
     if not hit:
-      # self.miss += 1
+      self.misses += 1
       # cache miss and all lines in specific set are filled. consult policy for replacement
       evictionLine = self.replacement_policy(address, set, addressTag, 0)
 
@@ -253,6 +253,7 @@ class Cache():
         # cache hit (address is found in the cache line)
         print("cache hit, override data in the cache with requested data.")
         hit = True
+        self.hits += 1
 
         print("dirty bit is set to 1 because not writing to RAM" if self.writehit == 2 else "dirty bit is set to 0 because writing to RAM")
         dirty = 1 if self.writehit == 2 else 0
@@ -275,6 +276,7 @@ class Cache():
     if not hit:
       # cache miss
       print("cache miss, set doesn't contain line containing the address.")     
+      self.misses += 1
 
       dirty = 1 if self.writemiss == 1 and self.writehit == 2 else 0
 
