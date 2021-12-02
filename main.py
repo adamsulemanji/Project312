@@ -28,18 +28,18 @@ def main():
   c = cache.Cache()
   c.initialize_memory(sys.argv[1])
 
-  val = ""
+  # val = ""
 
 
-  while val != "quit":
-    val = input("type one command: ")
+  # while val != "quit":
+  #   val = input("type one command: ")
     
-    if val == "cache-read":
-      c.cache_read(input("type one command: ").split()[1])
+  #   if val == "cache-read":
+  #     c.cache_read(input("type one command: ").split()[1])
     
-    elif val == "cache-write":
+  #   elif val == "cache-write":
       
-  c.memory_view()
+  # c.memory_view()
   c.configure_cache()
   
 
@@ -47,14 +47,10 @@ def main():
   c.cache_view()
   c.cache_read(input("type one command: ").split()[1])
   c.cache_view()
-  c.cache_read(input("type one command: ").split()[1])
-  c.cache_view()
-  c.cache_read(input("type one command: ").split()[1])
-  c.cache_view()
   data = input("type one command: ").split()
   c.cache_write(data[1], data[2])
   c.cache_view()
-  # c.memory_view()
+  c.memory_view()
   # c.cache_read(input("type one command: ").split()[1])
   # c.cache_view()
   # c.cache_read(input("type one command: ").split()[1])
