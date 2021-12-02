@@ -328,6 +328,9 @@ class Cache():
     print("replacement_policy: {}".format("random_replacement" if self.replacement == 1 else "least_recently_used"))
     print("write_hit_policy: {}".format("write_through" if self.writehit == 1 else "write_back"))
     print("write_miss_policy: {}".format("write_allocate" if self.writemiss == 1 else "write_no_allocate"))
+
+    print("number_of_cache_hits:", self.hits, '\n', 
+    "number_of_cache_misses:", self.misses)
     
 
     print("cache content:")
