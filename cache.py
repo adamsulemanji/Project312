@@ -108,15 +108,6 @@ class Cache():
     self.offsetbits = int(np.log2(self.bsize))
     # t = log2M (i.e. m) - (s + b)
     self.tagbits = int(np.log2(self.msize)) - (self.indexbits + self.offsetbits)
-
-    # DELETE WHEN PROJECT COMPLETE
-    print("\ncache size", self.csize)
-    print("number of sets:", self.ssize)
-    print("memory size: ", self.msize)
-    print("number of lines in each set", self.associativity)
-    print("number of blocks in each line", self.bsize)
-    print("tag {}, index {}, offset {}".format(self.tagbits, self.indexbits, self.offsetbits))
-
     
     print("cache successfully configured!\n")
     
@@ -334,7 +325,7 @@ class Cache():
         print(attributes[1], attributes[0], attributes[2], end = " ")
         for val in vals:
           print(val, end = " ")
-        print(attributes[4])
+        # print(attributes[4])
   
 
 
