@@ -33,7 +33,7 @@ class Cache():
 
     #cache hits and misses
     self.hits = 0
-    self.miss = 0
+    self.misses = 0
 
   
   def initialize_memory(self, filename):
