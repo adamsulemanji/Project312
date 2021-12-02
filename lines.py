@@ -7,11 +7,17 @@ class Line():
     self.dirty = 0
     self.tag = "00"
     self.block = ['00' for i in range(blockSize)]
+    self.readIndex = 0
 
   def attributes(self):
-    return (self.valid, self.dirty, self.tag, self.block)
+    return (self.dirty, self.valid, self.tag, self.block, self.readIndex)
 
-  def update_line(self, tag, offset, data):
-    self.valid = True
+  def update_line(self, tag, data, dirty, readIndex):
+    self.valid = 1
     self.tag = tag
     self.block = data
+    self.dirty = dirty
+    self.readIndex = readIndex
+
+  def flush(self, blockSize):
+    self.__init__(blockSize)
