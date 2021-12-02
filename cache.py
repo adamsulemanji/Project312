@@ -157,7 +157,10 @@ class Cache():
     evictionLine = 0
 
     ### FIX
-    dirty = 0 if rw == "read" else 1
+    dirty = 0
+    if rw == "write":
+      if self.writemiss == 2 or self.writemiss == 1 and self.writehit == 2:
+        dirty = 1
 
 
     if not set.isFull():
@@ -255,6 +258,7 @@ class Cache():
     # obtains (x-way associativity) x lines within the specified set
     lines = set.getLines()
 
+    dirty = 0
     hit = False
     evictionLine = -1
     
@@ -269,11 +273,14 @@ class Cache():
         print("cache hit, override data in the cache with requested data.")
         hit = True
 
+        print("dirty bit is set to 1 because not writing to RAM" if self.writehit == 2 else "dirty bit is set to 0 because writing to RAM")
+        dirty = 1 if self.writehit == 2 else 0
+
         # write data to block in cache
         lineBlock[addressBlockOffset] = data[2:]
 
-        print("dirty bit is set to 1 because not writing to RAM" if self.writehit == 2 else "dirty bit is set to 0 because writing to RAM")
-        dirty = 1 if self.writehit == 2 else 0
+        # update line's block and dirty bit
+        line.update_line(addressTag, lineBlock, dirty, self.recentIndex)
 
         if self.writehit == 1:
           # write-through, write the data to block in RAM
@@ -282,24 +289,30 @@ class Cache():
 
           # update block which is underlied by memory
           self.findBlock(address[2:])[addressBlockOffset] = data[2:]
-
-        # update line, specifically dirty bit
-        line.update_line(addressTag, self.findBlock(address[2:]), dirty, self.recentIndex)
-
         break
     
     if not hit:
       # cache miss
-      print("cache miss")      
+      print("cache miss, set doesn't contain line containing the address.")     
+
+      if self.writemiss == 2 or self.writemiss == 1 and self.writehit == 2:
+        dirty = 1 
 
       if self.writemiss == 1:
         # write allocate. load data from RAM (before updating) using replacement policy to cache, followed by write hit action 
+        print("write allocate. loading block from RAM (before updating data) to cache using replacement")
         evictionLine = self.replacement_policy(address, set, addressTag, "write")
 
-        # write through and write back both write to cache.
+        # write-hit action always writes data to cache
+        print("updating the block in cache with new data.")
+        lineBlock = lines[evictionLine].attributes()[3]
         lineBlock[addressBlockOffset] = data[2:]
+        lines[evictionLine].update_line(addressTag, lineBlock, dirty, self.recentIndex)
+
 
       if self.writehit == 1 or self.writemiss == 2:
+        # write-allocate miss => write-through hit, write to RAM and block.
+        # no-write-allocate miss => write to RAM
         self.memory[int(address, 16)] = data[2:]
         # update block which is underlied by memory
         self.findBlock(address[2:])[addressBlockOffset] = data[2:]
