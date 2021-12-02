@@ -1,4 +1,4 @@
-# File: main.py
+# File: cachesimulator.py
 # Author(s): Adam Sulemanji and Tristan Nigos
 # Date: 12/01/2021
 # Section: 505 

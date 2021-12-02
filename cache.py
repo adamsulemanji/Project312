@@ -31,7 +31,6 @@ class Cache():
     self.replacement = 0
     self.writehit = 0
     self.writemiss = 0
-
     
     # maybe?
     self.ramstart = 0
@@ -43,6 +42,7 @@ class Cache():
     self.misses = 0
 
   
+
   def initialize_memory(self, filename):
     print("intialize the RAM:")
 
@@ -63,7 +63,6 @@ class Cache():
     self.memory = self.memory[self.ramstart: self.ramend + 1]
     self.msize = self.ramend - self.ramstart + 1
     print("RAM successfully initialized!\n")
-    # take that input, and initialize with ram, memory address 0x00 the data in the address is 08, put that in dictionary/vector (choose the container that outputs in sorted order)
 
 
   
@@ -90,19 +89,19 @@ class Cache():
       self.replacement = int(input("replacement policy: "))
       if self.replacement in [1,2]: break
       else:
-        print("ERROR: invalid replace policy")
+        print("ERROR: invalid replacement policy")
 
     while True:
       self.writehit = int(input("write hit policy: "))
       if self.writehit in [1,2]: break
       else:
-        print("ERROR: write hit policy")
+        print("ERROR: invalid write hit policy")
 
     while True:
       self.writemiss = int(input("write miss policy: "))
       if self.writemiss in [1,2]: break
       else:
-        print("ERROR: write miss policy")
+        print("ERROR: invalid write miss policy")
     
     # S = C / (E * B)
     self.ssize = int(self.csize / (self.bsize * self.associativity))
@@ -297,8 +296,7 @@ class Cache():
 
 
       if self.writehit == 1 or self.writemiss == 2:
-        # write-allocate miss => write-through hit, write to RAM and block.
-        # no-write-allocate miss => write to RAM
+        # write-allocate miss => write-through hit, write to RAM and block. no-write-allocate miss => write to RAM
         print("writing data to block in RAM")
         self.memory[int(address, 16)] = data[2:]
         # update block which is underlied by memory
@@ -358,6 +356,7 @@ class Cache():
       for line in set.getLines():
         line.flush(self.bsize)
     print("cache_cleared")
+
 
 
   def cache_dump(self):
