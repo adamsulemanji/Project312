@@ -17,6 +17,7 @@ def print_menu():
   "7. memory-dump",'\n',
   "8. quit",'\n',
   "****************************")
+  print(a)
 
 
 def main():
