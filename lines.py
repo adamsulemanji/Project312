@@ -12,10 +12,11 @@ class Line():
   def attributes(self):
     return (self.dirty, self.valid, self.tag, self.block, self.readIndex)
 
-  def update_line(self, tag, data, readIndex):
+  def update_line(self, tag, data, dirty, readIndex):
     self.valid = 1
     self.tag = tag
     self.block = data
+    self.dirty = dirty
     self.readIndex = readIndex
 
   def flush(self, blockSize):
