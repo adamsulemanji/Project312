@@ -20,6 +20,7 @@ class Cache():
     self.offsetbits = 0
     self.tagbits = 0
 
+    self.readIndex = 0
     self.replacement = 0
     self.writehit = 0
     self.writemiss = 0
@@ -144,9 +145,7 @@ class Cache():
     return self.blocks[int(int(address, 16) / self.bsize)]        
 
     
-  def cache_read(self, addressIndex): 
-    
-
+  def cache_read(self, addressIndex):
     # hexa, int, int
     (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(addressIndex)
     print("address bits: tag {} set index {} block offset {}".format(self.tagbits, self.indexbits, self.offsetbits))
@@ -165,13 +164,14 @@ class Cache():
     
     for line in lines:
       # hex, hex, list(hex)
-      (lineValid, lineTag, lineBlock) = line.attributes()[1:]
+      (lineValid, lineTag, lineBlock) = line.attributes()[1:4]
       print("line: valid {} tag {} block {}".format(lineValid, lineTag, lineBlock))
 
       if lineValid == 1 and lineTag == addressTag:
         # cache hit, obtain data from the cache @ particular set -> index -> offset
         print("cache hit, tags are equal at an appropriate line. read data")
         hit = True
+        line.update_line(addressTag, self.findBlock(addressIndex[2:]), self.readIndex)
         data = "0x" + lineBlock[addressBlockOffset]
         addressIndex = -1
         evictionLine = -1
@@ -182,7 +182,7 @@ class Cache():
         # cache miss but can fill empty lines in the specific set
         print("cache miss, tags are not equal but set is not full. found an empty line. fill empty line")
         data = "0x" + str(self.memory[int(addressIndex, 16)])
-        line.update_line(addressTag, addressBlockOffset, self.findBlock(addressIndex[2:]))
+        line.update_line(addressTag, self.findBlock(addressIndex[2:]), self.readIndex)
         replace = False
         break
 
@@ -205,12 +205,24 @@ class Cache():
       if self.replacement == 1:
         # invoke random replacement
         evictionLine = random.randint(0, self.associativity - 1)
+        print("inputting new block of memory into cache at line index {}, where index used random replacement policy".format(evictionLine))
+        lines[evictionLine].update_line(addressTag, block, self.readIndex)
       if self.replacement == 2:
         # FIX NEEDED: invoke least recently used policy
-        evictionLine = random.randint(0, self.associativity - 1)
+        evictionLine, index = 0, 0
+        lruIndex = lines[0].attributes()[4]
 
-      print("inputting new block of memory into cache at line index {}, where index used a certain replacement policy".format(evictionLine))
-      lines[evictionLine].update_line(addressTag, addressBlockOffset, block)
+        for line in lines:
+          lineReadIndex = line.attributes()[4]
+          if lineReadIndex < lruIndex:
+            lruIndex = lineReadIndex
+            evictionLine = index
+          index += 1
+        print("inputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
+        lines[evictionLine].update_line(addressTag, block, self.readIndex)
+      
+
+      
     
 
 
@@ -220,6 +232,7 @@ class Cache():
     print("eviction line:", evictionLine)
     print("ram address:", addressIndex)
     print("data:", data, "\n")
+    self.readIndex += 1
   
   def cache_view(self):
     print("cache size:",  self.csize)
@@ -252,7 +265,7 @@ class Cache():
         print(attributes[0], attributes[1], attributes[2], end = " ")
         for val in vals:
           print(val, end = " ")
-        print()
+        print(attributes[4])
   
   def memory_view(self):
     print("memory_size:", self.msize)

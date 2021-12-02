@@ -22,6 +22,10 @@ def main():
   c.cache_view()
   c.cache_read(input("type one command: ").split()[1])
   c.cache_view()
+  c.cache_read(input("type one command: ").split()[1])
+  c.cache_view()
+  c.cache_read(input("type one command: ").split()[1])
+  c.cache_view()
 
   # c.cache_view()
   # c.cache_dump()
