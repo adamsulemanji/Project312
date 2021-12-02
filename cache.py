@@ -159,7 +159,6 @@ class Cache():
       if self.writemiss == 2 or self.writemiss == 1 and self.writehit == 2:
         dirty = 1
 
-
     if not set.isFull():
       for line in lines:
         lineValid = line.attributes()[1]
@@ -317,7 +316,7 @@ class Cache():
     print("eviction line:", evictionLine)
     print("ram address:", address)
     print("data:", data)
-    print("dirty bit:", lines[evictionLine].attributes()[0])
+    print("dirty bit:", dirty)
     self.recentIndex += 1
 
 
