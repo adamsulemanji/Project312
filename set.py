@@ -42,7 +42,7 @@ class Set():
 
   ## Documentation for the isFull method
   # @param self a pointer to itself
-  # return a boolea checking whether the line is full. 
+  # @return a boolea checking whether the line is full. 
   def isFull(self):
     for line in self.lines:
       if line.attributes()[1] == 0:
