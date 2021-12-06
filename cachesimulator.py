@@ -6,11 +6,23 @@
 # Description:
 # e.g., The content of this file implements main.py file
 
+
+## 
+# @package pyexample
+#
+# @file lines.py
+#
+# @brief The files defines the methods for the main file and simulating it
+
 import cache
 import set
 import os
 import sys
 
+
+## Documentation for the print menu method
+# @param none
+# @brief printing out the menu
 def print_menu():
   print("*** Cache simulator menu ***",'\n',
   "type one command:", '\n',
@@ -25,7 +37,11 @@ def print_menu():
   "****************************")
   print()
 
-
+## Documentation for the main function
+# @param none
+# @return none
+# @brief Takes in the file for the comand line and intializes the main memory. Takes in a command from the user and does the respecive command until "quit" is entered.
+# @var c holds the cache. 
 def main():
 
   c = cache.Cache()
