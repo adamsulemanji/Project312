@@ -74,8 +74,7 @@ def print_menu():
   "6. cache-dump",'\n',
   "7. memory-dump",'\n',
   "8. quit",'\n',
-  "****************************")
-  print()
+  "****************************", sep="")
 
 ## Documentation for the main function
 # @param none
@@ -134,7 +133,7 @@ def main():
 
   while True:
     print_menu()
-    line = input("type one command: ").split()
+    line = input().split()
     
     if line[0] == "cache-read":
       if len(line) != 2:
