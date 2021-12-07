@@ -275,7 +275,7 @@ class Cache():
     self.cache = [set.Set(self.associativity, self.bsize, i) for i in range (self.ssize)]
   
     # defines the blocks of memory that we would overwrite/push into cache following a cache read miss. refer to notes
-    for i in range(0, self.bsize, self.bsize):
+    for i in range(0, self.msize, self.bsize):
       self.blocks.append(self.memory[i: i + self.bsize])
     # print("BLOCKS = ", self.blocks)
 
