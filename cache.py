@@ -140,10 +140,8 @@ class Cache():
     print("intialize the RAM:")
 
     file = open(filename, 'r')
-    lines = file.readlines()
 
-    # change: store the hex values instead of binary
-    self.memory = [hexLine[:2] for hexLine in lines]
+    self.memory = ["00" for i in range(256)]
 
     # checks for number validity
     valid = False
@@ -153,8 +151,14 @@ class Cache():
       if (self.ramstart <= self.ramend):
         break
     
-    self.memory = self.memory[self.ramstart: self.ramend + 1]
     self.msize = self.ramend - self.ramstart + 1
+    for i in range(self.msize):
+      line = file.readline()[:2]
+      self.memory[i] = line
+    # self.memory = self.memory[self.ramstart: self.ramend + 1]
+    
+    # print("MEMORY", self.memory)
+    
     print("RAM successfully initialized!\n")
 
 
@@ -263,7 +267,7 @@ class Cache():
     # b = log2B
     self.offsetbits = int(np.log2(self.bsize))
     # t = log2M (i.e. m) - (s + b)
-    self.tagbits = int(np.log2(self.msize)) - (self.indexbits + self.offsetbits)
+    self.tagbits = int(np.log2(256)) - (self.indexbits + self.offsetbits)
     
     print("cache successfully configured!\n")
     
@@ -271,8 +275,9 @@ class Cache():
     self.cache = [set.Set(self.associativity, self.bsize, i) for i in range (self.ssize)]
   
     # defines the blocks of memory that we would overwrite/push into cache following a cache read miss. refer to notes
-    for i in range(0, self.msize, self.bsize):
+    for i in range(0, self.bsize, self.bsize):
       self.blocks.append(self.memory[i: i + self.bsize])
+    # print("BLOCKS = ", self.blocks)
 
 
   ## Documenting the binary split function
@@ -293,7 +298,7 @@ class Cache():
     binary = bin(int(address, 16))[2:].zfill(8)
     binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
     taghex = (hex(int(binary[0], 2))[2:]).upper()
-    
+    # print("bits: tag {} index {} offset {}".format(self.tagbits, self.indexbits, self.offsetbits))
     converted = [taghex.zfill(2), 0 if len(binary[1]) == 0 else int(binary[1], 2), int(binary[2], 2)]
     return converted
 
@@ -445,6 +450,13 @@ class Cache():
   #   self.recentIndex += 1
   # @endcode
   def cache_read(self, address):
+    # print(int(address[2:], 16), self.msize)
+    # if (int(address[2:], 16) > self.msize):
+    #   print("ERROR: reading out of range of memory initialization")
+    #   return
+
+
+
     # hexa, int, int
     (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(address)
 
@@ -741,7 +753,7 @@ class Cache():
       print()
       counter += 8
 
-      if counter >= self.msize:
+      if counter >= 256:
         break
 
 
