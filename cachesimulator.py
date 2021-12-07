@@ -19,7 +19,23 @@
 # @mainpage CSCE312 Cache Simulator Project
 # 
 # @section Author Created by: Adam Sulemanji and Tristan Nigos
-## Navigate over the class tab to learn more information about each class and its methods
+# @section idfiahd Cache Simulator information
+# Click on this to navigate to the cachesimulator.py file
+#
+#
+#
+#
+#
+## @section kalhd Cache Information
+# Click on this to navigate to the cache.Cache class
+#
+## @section kalhdh Set Information
+# Click on this to navigate to the set.Set class
+#
+## @section kalhdk Line Information
+# Click on this to navigate to the lines.Line class
+#
+## @section kjahsd Navigate over the class tab to learn more information about each class and its methods
 
 
 import cache
@@ -63,10 +79,10 @@ def print_menu():
 
 ## Documentation for the main function
 # @param none
-# @return none
-# @brief Takes in the file for the comand line and intializes the main memory. Takes in a command from the user and does the respecive command until "quit" is entered.
-# @var c holds the cache. 
+# @brief Takes in the file for the comand line and intializes the main memory. Takes in a command from the user and does the respecive command until "quit" is entered. 
 # @code
+# def main():
+#
 #   c = cache.Cache()
 #   c.initialize_memory(sys.argv[1])
 #   c.configure_cache()
@@ -75,7 +91,7 @@ def print_menu():
 #   while True:
 #     print_menu()
 #     line = input("type one command: ").split()
-#  
+#   
 #     if line[0] == "cache-read":
 #       if len(line) != 2:
 #         print("invalid number of arguments, try again.")
@@ -96,7 +112,7 @@ def print_menu():
 #    
 #     elif line[0] == "memory-view":
 #       c.memory_view()
-#   
+#    
 #     elif line[0] == "cache-dump":
 #       c.cache_dump()
 #    
@@ -152,6 +168,4 @@ def main():
 
     else:
       print("invalid command, try again.")
-  
-
 main()

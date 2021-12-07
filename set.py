@@ -7,7 +7,7 @@
 # e.g., The content of this file implements set.py file
 
 
-## 
+## Documentation for the set.py file and class
 # @file set.py
 # 
 # @brief The file defines the class for each set which has the methods of intialization, getlines and isfull.  
@@ -26,12 +26,8 @@ class Set():
   # @param numLines number of lines per set
   # @param blockSize the size of the block
   # @param setNumber which set number it is
-  # @var associativity number of lines per set
-  # @var blockSize the size of the block
-  # @var setNumber the set number
-  # @var lines creating the number of lines per set in each set
   # @code
-  #   def __init__(self, numLines, blockSize, setNumber):
+  # def __init__(self, numLines, blockSize, setNumber):
   #   self.associativity = numLines
   #   self.blockSize = blockSize
   #   self.setNumber = setNumber

@@ -6,22 +6,31 @@
 # Description:
 # e.g., The content of this file implements lines.py file
 
-## Documentation for the lines class and its respective methods
+## Documentation for the lines class and its respective methods inside the lines.py file
 # 
 # @file lines.py
 #
-# @brief The function defines the class for each line in the cache and its respectives methods
+# @brief The function defines the class for each line in the cache and its respectives methods under the lines.py file
 
 ## Documentation for each line and its respective methods
 class Line():
-  ## The constructor for each line
+
+  ## Documenation for the lines method
   # @param blockSize the block size of the cache
   # @param self a pointer to itself
-  # @var self.valid the validity of the line
-  # @var self.dirty indicates wheter or not the corresponding block of memory has been modified
-  # @var self.tag contains the address of the actual data fetched from the main memory
-  # @var self.block contains the actual information fetched from the main memory
-  # @var self.readIndex contains the readIndex information
+  # @code
+  # def __init__(self, blockSize) -> None:
+  #   ## the validity of the line
+  #   self.valid = 0
+  #   ## indicates wheter or not the corresponding block of memory has been modified
+  #   self.dirty = 0
+  #   ## contains the address of the actual data fetched from the main memory
+  #   self.tag = "00"
+  #   ## contains the actual information fetched from the main memory
+  #   self.block = ['00' for i in range(blockSize)]
+  #   ## contains the readIndex information
+  #   self.readIndex = 0
+  # @endcode
   def __init__(self, blockSize) -> None:
     ## the validity of the line
     self.valid = 0
