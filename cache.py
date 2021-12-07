@@ -699,8 +699,8 @@ class Cache():
       #       print()
   # @endcode
   def cache_view(self):
-    print("cache size:",  self.csize, sep="")
-    print("data block size:", self.bsize, sep="")
+    print("cache_size:",  self.csize, sep="")
+    print("data_block_size:", self.bsize, sep="")
     print("associativity:", self.associativity, sep="")
     print("replacement_policy:{}".format("random_replacement" if self.replacement == 1 else "least_recently_used"))
     print("write_hit_policy:{}".format("write_through" if self.writehit == 1 else "write_back"))
@@ -709,7 +709,7 @@ class Cache():
     print("number_of_cache_misses:", self.misses, sep="")
     
 
-    print("cache content:")
+    print("cache_content:")
     for set in self.cache:
       for line in set.getLines():
         attributes = line.attributes()
