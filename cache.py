@@ -353,6 +353,7 @@ class Cache():
         if lineValid == 0:
           # print("\tcache miss, tags are not equal but set is not full. found an empty line. fill empty line")
           lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+          
           break
         else:
           evictionLine += 1
@@ -381,6 +382,7 @@ class Cache():
 
       # print("\tDIRTY {} inputting new block of memory into cache at line index {}, where index used random replacement policy".format(dirty, evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+      
     elif self.replacement == 2:
       # print("\tcache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
       evictionLine, index = 0, 0
@@ -410,6 +412,38 @@ class Cache():
         lines[evictionLine].set_dirty(0)
       # print("\tinputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+    
+    elif self.replacement == 3:
+      # invoke least frequently used
+      evictionLine, index = 0, 0
+      lfuIndex = lines[0].get_frequent()
+
+      for line in lines:
+        frequentIndex = line.get_frequent()
+        if frequentIndex < lfuIndex:
+          lfuIndex = frequentIndex
+          evictionLine = index
+        index += 1
+
+      if (lines[evictionLine].attributes()[0] == 1):
+        # if the line to evict is dirty, write to RAM and then the blocks.
+
+        # use the set index and the tag of line that we are evicting. gives us the starting address index of the memory block to overwrite.
+        (tag, setIndex, blockOffset) = self.binarySplit(address)
+        setIndexBinary = bin(setIndex)[2:]
+        tagBinary = bin(int(lines[evictionLine].attributes()[2], 16))[2:]
+        evictLineBinary = '0b{:<08d}'.format(int(tagBinary + setIndexBinary))
+
+        # obtain the block given the starting address of that block from prior computations. overwrite with the block from cache that had overwritten data (thus dirty)
+        memBlockStart = int(evictLineBinary, 2) - (int(evictLineBinary, 2) % self.bsize)
+        self.memory[memBlockStart: memBlockStart + self.bsize] = lines[evictionLine].attributes()[3]
+
+        # since block from cache and block in RAM are now equal, set dirty bit to 0
+        lines[evictionLine].set_dirty(0)
+
+      # print("\tinputting new block of memory into cache at line index {}, where index used LFU policy".format(evictionLine))
+      lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+
       
     return evictionLine
 
@@ -489,6 +523,7 @@ class Cache():
         hit = True
         memBlockStart = int(address, 16) - (int(address, 16) % self.bsize)
         line.update_line(addressTag, self.memory[memBlockStart: memBlockStart + self.bsize], 0, self.recentIndex)
+        line.set_frequent()
         data = "0x" + lineBlock[addressBlockOffset]
         address = -1
         evictionLine = -1
@@ -646,6 +681,7 @@ class Cache():
         
         # update line's block and dirty bit
         line.update_line(addressTag, lineBlock, dirty, self.recentIndex)
+        line.set_frequent()
 
         if self.writehit == 1:
           # write-through, write the data to block in RAM
@@ -724,7 +760,7 @@ class Cache():
         for val in vals:
           print(val, end = " ")
         print()
-        # print(attributes[4])
+        print(line.get_frequent())
   
 
   ## Documentaion for the viewing the current state of the memory

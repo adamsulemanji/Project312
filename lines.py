@@ -39,9 +39,11 @@ class Line():
     ## contains the address of the actual data fetched from the main memory
     self.tag = "00"
     ## contains the actual information fetched from the main memory
-    self.AAA = ['00' for i in range(blockSize)]
+    self.block = ['00' for i in range(blockSize)]
     ## contains the readIndex information
     self.readIndex = 0
+    ## contains the information to determine how many times line was referenced
+    self.frequentIndex = 0
 
 
   ## Documentation for the return statement of the block
@@ -52,7 +54,7 @@ class Line():
   #   return (self.dirty, self.valid, self.tag, self.block, self.readIndex)
   # @endcode
   def attributes(self):
-    return (self.dirty, self.valid, self.tag, self.AAA, self.readIndex)
+    return (self.dirty, self.valid, self.tag, self.block, self.readIndex, self.frequentIndex)
 
 
   ## Documentation for updating line
@@ -72,9 +74,15 @@ class Line():
   def update_line(self, tag, data, dirty, readIndex):
     self.valid = 1
     self.tag = tag
-    self.AAA = data
+    self.block = data
     self.dirty = dirty
     self.readIndex = readIndex
+
+  def get_frequent(self):
+    return self.frequentIndex
+  
+  def set_frequent(self):
+    self.frequentIndex += 1
 
   def set_dirty(self, dirty):
     self.dirty = dirty
