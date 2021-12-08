@@ -130,15 +130,15 @@ def main():
   c.initialize_memory(sys.argv[1])
   c.configure_cache()
 
-  c.cache_read("0xCF")
-  c.cache_read("0xDF")
+  # c.cache_read("0xCF")
+  # c.cache_read("0xDF")
 
-  c.cache_write("0xCF", "0xAA")
-  c.cache_write("0xDF", "0xAA")
+  # c.cache_write("0xCF", "0xAA")
+  # c.cache_write("0xDF", "0xAA")
 
-  c.memory_view()
-  c.cache_view()
-  c.cache_read("0xEF")
+  # c.memory_view()
+  # c.cache_view()
+  # c.cache_read("0xEF")
 
   while True:
     print_menu()
