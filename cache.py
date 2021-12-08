@@ -807,9 +807,7 @@ class Cache():
   # @param self A pointer to itself
   # @code
   # def cache_dump(self):
-  #   with open ("cache.txt", "w+") as file:
-  #     file.write("cache-dump")
-  #     file.write('\n')
+  #   with open ("cache.txt", "w+") as file:]
   #     for set in self.cache:
   #       for line in set.getLines():
   #         attributes = line.attributes()
@@ -837,8 +835,6 @@ class Cache():
   # def memory_dump(self):
   #   with open("ram.txt", "w+") as file:
   #     file.truncate(0)
-  #     file.write("memory-dump")
-  #     file.write('\n')
   #     for data in self.memory:
   #       file.write(data)
   #       file.write('\n')
