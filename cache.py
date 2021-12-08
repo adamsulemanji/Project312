@@ -23,27 +23,28 @@ class Cache():
   # @param self A pointer to itself
   # @code
   # def __init__(self) -> None:
-  #   print("*** Welcome to the Cache Simulator ***")
+  #   print("*** Welcome to the cache simulator ***")
   #   ## Creating a list of information
   #   self.cache = list()
   #   ## List to hold all of the memory
   #   self.memory = list()
   #   ## the number of physical address bits
   #   self.msize = 0
-  #   ##  Cache size
+  #   ##  cache size
   #   self.csize = 0
   #   ## block size
   #   self.bsize = 0
   #   ## set size
   #   self.ssize = 0
   #   ## Number of lines per set
-  #   self.associativity = 0 
+  #   self.associativity = 0 # number of lines, e
   #   ## The number of index bits
   #   self.indexbits = 0
   #   ## The number of offset bits
   #   self.offsetbits = 0
   #   ## The number of tag bits
   #   self.tagbits = 0
+  #
   #   self.recentIndex = 1
   #   ## Replacement policy information
   #   self.replacement = 0
@@ -51,10 +52,13 @@ class Cache():
   #   self.writehit = 0
   #   ## write miss policy
   #   self.writemiss = 0
+  #
   #   ## The beginning of the RAM
   #   self.ramstart = 0
   #   ## The end of the RAM
   #   self.ramend = 0
+  #
+  #
   #   ## Number of cache hits
   #   self.hits = 0
   #   ## Number of cache misses
@@ -68,7 +72,7 @@ class Cache():
     self.memory = list()
     ## the number of physical address bits
     self.msize = 0
-    ##  Cache size
+    ##  cache-size
     self.csize = 0
     ## block size
     self.bsize = 0
@@ -112,13 +116,11 @@ class Cache():
   # @param filename The file being opened
   # @code
   # def initialize_memory(self, filename):
-  #   print("intialize the RAM:")
+  #   print("initialize the RAM:")
   #
   #   file = open(filename, 'r')
-  #   lines = file.readlines()
   #
-  #   # change: store the hex values instead of binary
-  #   self.memory = [hexLine[:2] for hexLine in lines]
+  #   self.memory = ["00" for i in range(256)]
   #
   #   # checks for number validity
   #   valid = False
@@ -127,10 +129,16 @@ class Cache():
   #     self.ramstart, self.ramend = int(self.ramstart[2:], 16), int(self.ramend[2:], 16)
   #     if (self.ramstart <= self.ramend):
   #       break
-  #  
-  #   self.memory = self.memory[self.ramstart: self.ramend + 1]
+  #   
   #   self.msize = self.ramend - self.ramstart + 1
-  #   print("RAM successfully initialized!\n")
+  #   for i in range(self.msize):
+  #     line = file.readline()[:2]
+  #     self.memory[i] = line
+  #   # self.memory = self.memory[self.ramstart: self.ramend + 1]
+  #  
+  #   # print("MEMORY", self.memory)
+  #   
+  #   print("RAM successfully initialized!")
   # @endcode
   def initialize_memory(self, filename):
     print("initialize the RAM:")
@@ -172,8 +180,8 @@ class Cache():
   #   self.csize = int(input("cache size: "))
   #
   #   while True:
-  #     self.bsize = int(input("block size: "))
-  #     if self.bsize < self.csize: break
+  #     self.bsize = int(input("data block size: "))
+  #     if self.bsize <= self.csize: break
   #     else:
   #       print("ERROR: invalid block size")
   #
@@ -182,10 +190,10 @@ class Cache():
   #     if self.associativity in [1, 2, 4]: break
   #     else:
   #       print("ERROR: invalid associativity")
-  #
+  #    
   #   while True:
   #     self.replacement = int(input("replacement policy: "))
-  #     if self.replacement in [1,2]: break
+  #     if self.replacement in [1,2,3]: break
   #     else:
   #       print("ERROR: invalid replacement policy")
   #
@@ -204,14 +212,14 @@ class Cache():
   #   # S = C / (E * B)
   #   self.ssize = int(self.csize / (self.bsize * self.associativity))
   #   # s = log2S
-  #   self.indexbits = int(np.log2(self.ssize))
+  #   self.indexbits = int(math.log2(self.ssize))
   #   # b = log2B
-  #   self.offsetbits = int(np.log2(self.bsize))
+  #   self.offsetbits = int(math.log2(self.bsize))
   #   # t = log2M (i.e. m) - (s + b)
-  #   self.tagbits = int(np.log2(self.msize)) - (self.indexbits + self.offsetbits)
+  #   self.tagbits = int(math.log2(256)) - (self.indexbits + self.offsetbits)
   # 
-  #   print("cache successfully configured!\n")
-  #
+  #   print("cache successfully configured!")
+  # 
   #   # defining cache as a list of sets, for each set pass (associativity (number of lines), block size, set index)
   #   self.cache = [set.Set(self.associativity, self.bsize, i) for i in range (self.ssize)]
   #
@@ -277,7 +285,7 @@ class Cache():
   #   binary = bin(int(address, 16))[2:].zfill(8)
   #   binary = [binary[0: self.tagbits], binary[self.tagbits: self.tagbits + self.indexbits], binary[self.tagbits + self.indexbits: self.tagbits + self.indexbits + self.offsetbits]]
   #   taghex = (hex(int(binary[0], 2))[2:]).upper()
-    
+  # 
   #   converted = [taghex.zfill(2), 0 if len(binary[1]) == 0 else int(binary[1], 2), int(binary[2], 2)]
   #   return converted
   # @endcode
@@ -302,29 +310,50 @@ class Cache():
   # @code
   # def replacement_policy(self, address, set, addressTag, dirty):
   #   lines = set.getLines()
+  #
   #   # obtain the block of memory (of size blocksize) for line replacement
-  #   block = self.findBlock(address[2:])
+  #   addressBlockStart = int(address, 16) - (int(address, 16) % self.bsize)
+  #   block = self.memory[addressBlockStart: addressBlockStart + self.bsize]
   #   evictionLine = 0
   #
   #   if not set.isFull():
   #     for line in lines:
   #       lineValid = line.attributes()[1]
   #       if lineValid == 0:
-  #         print("\tcache miss, tags are not equal but set is not full. found an empty line. fill empty line")
+  #         # print("\tcache miss, tags are not equal but set is not full. found an empty line. fill empty line")
   #         lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+  #         lines[evictionLine].set_frequent()
   #         break
   #       else:
   #         evictionLine += 1
   #
   #   # invoke specified replacement policy
   #   elif self.replacement == 1:
-  #     print("\tcache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
+  #     # print("\tcache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
   #     # invoke random replacement
   #     evictionLine = random.randint(0, self.associativity - 1)
-  #     print("\tDIRTY {} inputting new block of memory into cache at line index {}, where index used random replacement policy".format(dirty, evictionLine))
+  #
+  #     if (lines[evictionLine].attributes()[0] == 1):
+  #       # if the line to evict is dirty, write the dirty block from cache to RAM, thus the block is no longer dirty
+  #
+  #       # use the set index and the tag of line that we are evicting. gives us the starting address index of the memory block to overwrite.
+  #       (tag, setIndex, blockOffset) = self.binarySplit(address)
+  #       setIndexBinary = bin(setIndex)[2:]
+  #       tagBinary = bin(int(lines[evictionLine].attributes()[2], 16))[2:]
+  #       evictLineBinary = '0b{:<08d}'.format(int(tagBinary + setIndexBinary))
+  #
+  #       # obtain the block given the starting address of that block from prior computations. overwrite with the block from cache that had overwritten data (thus dirty)
+  #       memBlockStart = int(evictLineBinary, 2) - (int(evictLineBinary, 2) % self.bsize)
+  #       self.memory[memBlockStart: memBlockStart + self.bsize] = lines[evictionLine].attributes()[3]
+  #
+  #       # since block from cache and block in RAM are now equal, set dirty bit to 0
+  #       lines[evictionLine].set_dirty(0)
+  #
+  #     # print("\tDIRTY {} inputting new block of memory into cache at line index {}, where index used random replacement policy".format(dirty, evictionLine))
   #     lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+  #     lines[evictionLine].set_frequent()
   #   elif self.replacement == 2:
-  #     print("\tcache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
+  #     # print("\tcache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
   #     evictionLine, index = 0, 0
   #     lruIndex = lines[0].attributes()[4]
   #
@@ -334,9 +363,57 @@ class Cache():
   #         lruIndex = lineReadIndex
   #         evictionLine = index
   #       index += 1
-  #     print("\tinputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
+  #
+  #     if (lines[evictionLine].attributes()[0] == 1):
+  #       # if the line to evict is dirty, write to RAM and then the blocks.
+  #
+  #       # use the set index and the tag of line that we are evicting. gives us the starting address index of the memory block to overwrite.
+  #       (tag, setIndex, blockOffset) = self.binarySplit(address)
+  #       setIndexBinary = bin(setIndex)[2:]
+  #       tagBinary = bin(int(lines[evictionLine].attributes()[2], 16))[2:]
+  #       evictLineBinary = '0b{:<08d}'.format(int(tagBinary + setIndexBinary))
+  #
+  #       # obtain the block given the starting address of that block from prior computations. overwrite with the block from cache that had overwritten data (thus dirty)
+  #       memBlockStart = int(evictLineBinary, 2) - (int(evictLineBinary, 2) % self.bsize)
+  #       self.memory[memBlockStart: memBlockStart + self.bsize] = lines[evictionLine].attributes()[3]
+  #
+  #       # since block from cache and block in RAM are now equal, set dirty bit to 0
+  #       lines[evictionLine].set_dirty(0)
+  #     # print("\tinputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
   #     lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-  #   
+  #     lines[evictionLine].set_frequent()
+  #   elif self.replacement == 3:
+  #     # invoke least frequently used
+  #     evictionLine, index = 0, 0
+  #     lfuIndex = lines[0].get_frequent()
+  #
+  #     for line in lines:
+  #       frequentIndex = line.get_frequent()
+  #       if frequentIndex < lfuIndex:
+  #         lfuIndex = frequentIndex
+  #         evictionLine = index
+  #       index += 1
+  #
+  #     if (lines[evictionLine].attributes()[0] == 1):
+  #       # if the line to evict is dirty, write to RAM and then the blocks.
+  #
+  #       # use the set index and the tag of line that we are evicting. gives us the starting address index of the memory block to overwrite.
+  #       (tag, setIndex, blockOffset) = self.binarySplit(address)
+  #       setIndexBinary = bin(setIndex)[2:]
+  #       tagBinary = bin(int(lines[evictionLine].attributes()[2], 16))[2:]
+  #       evictLineBinary = '0b{:<08d}'.format(int(tagBinary + setIndexBinary))
+  #
+  #       # obtain the block given the starting address of that block from prior computations. overwrite with the block from cache that had overwritten data (thus dirty)
+  #       memBlockStart = int(evictLineBinary, 2) - (int(evictLineBinary, 2) % self.bsize)
+  #       self.memory[memBlockStart: memBlockStart + self.bsize] = lines[evictionLine].attributes()[3]
+  #
+  #       # since block from cache and block in RAM are now equal, set dirty bit to 0
+  #       lines[evictionLine].set_dirty(0)
+  #
+  #     # print("\tinputting new block of memory into cache at line index {}, where index used LFU policy".format(evictionLine))
+  #     lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
+  #     lines[evictionLine].set_frequent()
+  #    
   #   return evictionLine
   # @endcode
   def replacement_policy(self, address, set, addressTag, dirty):
@@ -452,29 +529,36 @@ class Cache():
   # @param address the address at which the data is stored at
   # @code
   # def cache_read(self, address):
+  #   # print(int(address[2:], 16), self.msize)
+  #   # if (int(address[2:], 16) > self.msize):
+  #   #   print("ERROR: reading out of range of memory initialization")
+  #   #   return
+  #
   #   # hexa, int, int
   #   (addressTag, addressSetIndex, addressBlockOffset) = self.binarySplit(address)
   #
   #   # obtaining the set at the set index it should be in
   #   set = self.cache[addressSetIndex]
   #
-    # obtains (x-way associativity) x lines within the specified set
+  #   # obtains (x-way associativity) x lines within the specified set
   #   lines = set.getLines()
   #
   #   hit = False
   #   data = None
   #   evictionLine = 0
-  # 
+  #
   #   for line in lines:
   #     # hex, hex, list(hex)
   #     (lineValid, lineTag, lineBlock) = line.attributes()[1:4]
   #
   #     if lineValid == 1 and lineTag == addressTag:
   #       # cache hit, obtain data from the cache @ particular set -> index -> offset
-  #       print("cache hit, tags are equal at an appropriate line. read data")
+  #       # print("cache hit, tags are equal at an appropriate line. read data")
   #       self.hits += 1
   #       hit = True
-  #       line.update_line(addressTag, self.findBlock(address[2:]), 0, self.recentIndex)
+  #       memBlockStart = int(address, 16) - (int(address, 16) % self.bsize)
+  #       line.update_line(addressTag, self.memory[memBlockStart: memBlockStart + self.bsize], 0, self.recentIndex)
+  #       line.set_frequent()
   #       data = "0x" + lineBlock[addressBlockOffset]
   #       address = -1
   #       evictionLine = -1
@@ -483,14 +567,16 @@ class Cache():
   #
   #   if not hit:
   #     self.misses += 1
+  #
   #     # cache miss and all lines in specific set are filled. consult policy for replacement
   #     evictionLine = self.replacement_policy(address, set, addressTag, 0)
+  #
   #
   #     # obtain the data from memory (which will be stored in the cache) indexed by memory address (hexa) converted to binary
   #     data = "0x" + str(self.memory[int(address, 16)])
   #
   #   self.hitmiss_print([addressSetIndex, addressTag, hit, evictionLine, address, data])
-  #
+  # 
   #   self.recentIndex += 1
   # @endcode
   def cache_read(self, address):
@@ -551,13 +637,14 @@ class Cache():
   # @param array An array of information to print from cache-read
   # @code
   # def hitmiss_print(self, array):
-  #   print("set:", array[0])
-  #   print("tag:", array[1])
-  #   print("hit:", "yes" if array[2] else "no")
-  #   print("eviction line:", array[3])
-  #   print("ram address:", array[4])
-  #   print("data:", array[5])
-  #   print("dirty bit: {}".format(array[6]) if len(array) == 7 else "")
+  #   print("set:", array[0], sep="")
+  #   print("tag:", array[1], sep="")
+  #   print("hit:", "yes" if array[2] else "no", sep="")
+  #   print("eviction line:", array[3], sep="")
+  #   print("ram address:", array[4], sep="")
+  #   print("data:", array[5], sep="")
+  #   if (len(array) == 7):
+  #     print("dirty bit:{}".format(array[6]))
   # @endcode
   def hitmiss_print(self, array):
     print("set:", array[0], sep="")
@@ -587,7 +674,7 @@ class Cache():
   #   dirty = 0
   #   hit = False
   #   evictionLine = -1
-  #
+  #  
   #   # find the line with bits that correspond to the address bits 
   #   for line in lines:
   #   
@@ -595,42 +682,41 @@ class Cache():
   #
   #     if lineValid == 1 and lineTag == addressTag:
   #       # cache hit (address is found in the cache line)
-  #       print("cache hit, override data in the cache with requested data.")
+  #       # print("cache hit, override data in the cache with requested data.")
   #       hit = True
   #       self.hits += 1
   #
-  #       print("dirty bit is set to 1 because not writing to RAM" if self.writehit == 2 else "dirty bit is set to 0 because writing to RAM")
+  #       # print("dirty bit is set to 1 because not writing to RAM" if self.writehit == 2 else "dirty bit is set to 0 because writing to RAM")
   #       dirty = 1 if self.writehit == 2 else 0
   #
   #       # write data to block in cache
   #       lineBlock[addressBlockOffset] = data[2:]
+  #     
+  #    
+  #       # update line's block and dirty bit
+  #       line.update_line(addressTag, lineBlock, dirty, self.recentIndex)
+  #       line.set_frequent()
   #
-        # # update line's block and dirty bit
-        # line.update_line(addressTag, lineBlock, dirty, self.recentIndex)
-        #
-        # if self.writehit == 1:
-        #   # write-through, write the data to block in RAM
-        #   print("write through, override data in RAM with data in cache")
-        #   self.memory[int(address, 16)] = data[2:]
-        #
-        #   # update block which is underlied by memory
-        #   self.findBlock(address[2:])[addressBlockOffset] = data[2:]
-        # break
-  #
+  #       if self.writehit == 1:
+  #         # write-through, write the data to block in RAM
+  #         # print("write through, override data in RAM with data in cache")
+  #         self.memory[int(address, 16)] = data[2:]
+  #       break
+  #  
   #   if not hit:
   #     # cache miss
-  #     print("cache miss, set doesn't contain line containing the address.")     
+  #     # print("cache miss, set doesn't contain line containing the address.")     
   #     self.misses += 1
   #
   #     dirty = 1 if self.writemiss == 1 and self.writehit == 2 else 0
   #
   #     if self.writemiss == 1:
   #       # write allocate. load data from RAM (before updating) using replacement policy to cache, followed by write hit action 
-  #       print("write allocate. loading block from RAM (before updating data) to cache using replacement")
+  #       # print("write allocate. loading block from RAM (before updating data) to cache using replacement")
   #       evictionLine = self.replacement_policy(address, set, addressTag, dirty)
   #
   #       # following a write-allocate miss, write-hit action always writes data to cache
-  #       print("updating the block in cache with new data.")
+  #       # print("updating the block in cache with new data.")
   #       lineBlock = lines[evictionLine].attributes()[3]
   #       lineBlock[addressBlockOffset] = data[2:]
   #       lines[evictionLine].update_line(addressTag, lineBlock, dirty, self.recentIndex)
@@ -638,10 +724,8 @@ class Cache():
   #
   #     if self.writehit == 1 or self.writemiss == 2:
   #       # write-allocate miss => write-through hit, write to RAM and block. no-write-allocate miss => write to RAM
-  #       print("writing data to block in RAM")
+  #       # print("writing data to block in RAM")
   #       self.memory[int(address, 16)] = data[2:]
-  #       # update block which is underlied by memory
-  #       self.findBlock(address[2:])[addressBlockOffset] = data[2:]
   #     else:
   #       print("not writing data to RAM, therefore it's dirty")
   #
@@ -724,22 +808,24 @@ class Cache():
   # @param self A pointer to itself
   # @code
   # def cache_view(self):
-  #   print("cache size:",  self.csize)
-  #   print("data block size:", self.bsize)
-  #   print("associativity:", self.associativity)
-  #   print("replacement_policy: {}".format("random_replacement" if self.replacement == 1 else "least_recently_used"))
-  #   print("write_hit_policy: {}".format("write_through" if self.writehit == 1 else "write_back"))
-  #   print("write_miss_policy: {}".format("write_allocate" if self.writemiss == 1 else "write_no_allocate"))
-  #   print("number_of_cache_hits:", self.hits, "\nnumber_of_cache_misses:", self.misses)
-      # print("cache content:")
-      #   for set in self.cache:
-      #     for line in set.getLines():
-      #       attributes = line.attributes()
-      #       vals = attributes[3]
-      #       print(attributes[1], attributes[0], attributes[2], end = " ")
-      #       for val in vals:
-      #         print(val, end = " ")
-      #       print()
+  #   print("cache_size:",  self.csize, sep="")
+  #   print("data_block_size:", self.bsize, sep="")
+  #   print("associativity:", self.associativity, sep="")
+  #   print("replacement_policy:{}".format("random_replacement" if self.replacement == 1 else ("least_recently_used" if self.replacement == 2 else "least_frequently_used")))
+  #   print("write_hit_policy:{}".format("write_through" if self.writehit == 1 else "write_back"))
+  #   print("write_miss_policy:{}".format("write_allocate" if self.writemiss == 1 else "write_no_allocate"))
+  #   print("number_of_cache_hits:", self.hits, sep="")
+  #   print("number_of_cache_misses:", self.misses, sep="")
+  #   print("cache_content:")
+  #     for set in self.cache:
+  #       for line in set.getLines():
+  #         attributes = line.attributes()
+  #         vals = attributes[3]
+  #         print(attributes[1], attributes[0], attributes[2], end = " ")
+  #         for val in vals:
+  #           print(val, end = " ")
+  #         # print()
+  #         print(line.get_frequent())
   # @endcode
   def cache_view(self):
     print("cache_size:",  self.csize, sep="")
@@ -773,14 +859,14 @@ class Cache():
   #   counter = 0
   #   while True:
   #     hexNum = hex(self.ramstart + counter)
-  #     print("{}{}: ".format(hexNum[0:2], hexNum[2:].upper().zfill(2)), end = "")
+  #     print("{}{}:".format(hexNum[0:2], hexNum[2:].upper().zfill(2)), end = "")
   #     vals = self.memory[0 + counter: 8 + counter]
   #     for h in vals:
   #       print(h, end = " ")
   #     print()
   #     counter += 8
   #
-  #     if counter >= self.msize:
+  #     if counter >= 256:
   #       break
   # @endcode
   def memory_view(self):
@@ -803,7 +889,6 @@ class Cache():
 
   ## Documentation for the cache-flush method
   # @param self A pointer to itself
-  # @code
   # def cache_flush(self):
   #   for set in self.cache:
   #     for line in set.getLines():
@@ -822,14 +907,13 @@ class Cache():
   # @param self A pointer to itself
   # @code
   # def cache_dump(self):
-  #   with open ("cache.txt", "w+") as file:]
+  #   with open ("cache.txt", "w+") as file:
   #     for set in self.cache:
   #       for line in set.getLines():
   #         attributes = line.attributes()
   #         for data in attributes[3]:
   #           file.write(data)
   #           file.write(" ")
-  #         #   print(data, end = " ")
   #         file.write('\n')
   # @endcode
   def cache_dump(self):

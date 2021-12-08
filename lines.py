@@ -30,6 +30,8 @@ class Line():
   #   self.block = ['00' for i in range(blockSize)]
   #   ## contains the readIndex information
   #   self.readIndex = 0
+  #   ## contains the information to determine how many times line was referenced
+  #   self.frequentIndex = 0
   # @endcode
   def __init__(self, blockSize) -> None:
     ## the validity of the line
@@ -51,7 +53,7 @@ class Line():
   # @retval Returns all attributes of itself in an indexable fashion
   # @code
   # def attributes(self):
-  #   return (self.dirty, self.valid, self.tag, self.block, self.readIndex)
+  #   return (self.dirty, self.valid, self.tag, self.block, self.readIndex, self.frequentIndex)
   # @endcode
   def attributes(self):
     return (self.dirty, self.valid, self.tag, self.block, self.readIndex, self.frequentIndex)
@@ -78,18 +80,51 @@ class Line():
     self.dirty = dirty
     self.readIndex = readIndex
 
+
+  ##Documenation for the getting the frequent part of line
+  # @param self A pointer to itself
+  # @retval frequentIndex Returns the frequency index of the line
+  # @code
+  # def get_frequent(self):
+  #   return self.frequentIndex
+  # @endcode
   def get_frequent(self):
     return self.frequentIndex
   
+
+  ##Documenation for the setting the frequent part of line by increasing the counter by one
+  # @param self A pointer to itself
+  # @code
+  # def set_frequent(self):
+  #   self.frequentIndex += 1
+  # @endcode
   def set_frequent(self):
     self.frequentIndex += 1
 
+
+
+  ##Documenation for the resetting the frequency counter
+  # @param self A pointer to itself
+  # @code
+  # def reset_frequent(self):
+  #   self.frequentIndex = 1
+  # @endcode
   def reset_frequent(self):
     self.frequentIndex = 1
 
+
+
+  ##Documenation for the setting the dirty bit of the line
+  # @param self A pointer to itself
+  # @code
+  # def set_dirty(self, dirty):
+  #   self.dirty = dirty
+  # @endcode
   def set_dirty(self, dirty):
     self.dirty = dirty
   
+
+  ## Documenation for flusing out the cache and creating a new one
   # @param self A pointer to itself
   # @param blockSize The new and updated block size
   # @code

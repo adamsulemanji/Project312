@@ -59,10 +59,8 @@ import sys
 #   "6. cache-dump",'\n',
 #   "7. memory-dump",'\n',
 #   "8. quit",'\n',
-#   "****************************")
-#   print()
+#   "****************************", sep="")
 # @endcode
-
 def print_menu():
   print("*** Cache simulator menu ***",'\n',
   "type one command:", '\n',
@@ -86,17 +84,16 @@ def print_menu():
 #   c.initialize_memory(sys.argv[1])
 #   c.configure_cache()
 #
-#
 #   while True:
 #     print_menu()
-#     line = input("type one command: ").split()
-#   
+#     line = input().split()
+#  
 #     if line[0] == "cache-read":
 #       if len(line) != 2:
 #         print("invalid number of arguments, try again.")
 #       else:
 #         c.cache_read(line[1])
-#    
+#   
 #     elif line[0] == "cache-write":
 #       if len(line) != 3:
 #         print("invalid number of arguments, try again.")
@@ -108,13 +105,13 @@ def print_menu():
 #   
 #     elif line[0] == "cache-view":
 #       c.cache_view()
-#    
+#   
 #     elif line[0] == "memory-view":
 #       c.memory_view()
-#    
+#   
 #     elif line[0] == "cache-dump":
 #       c.cache_dump()
-#    
+#  
 #     elif line[0] == "memory-dump":
 #       c.memory_dump()
 #
@@ -129,16 +126,6 @@ def main():
   c = cache.Cache()
   c.initialize_memory(sys.argv[1])
   c.configure_cache()
-
-  # c.cache_read("0xCF")
-  # c.cache_read("0xDF")
-
-  # c.cache_write("0xCF", "0xAA")
-  # c.cache_write("0xDF", "0xAA")
-
-  # c.memory_view()
-  # c.cache_view()
-  # c.cache_read("0xEF")
 
   while True:
     print_menu()
