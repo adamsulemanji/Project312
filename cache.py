@@ -28,8 +28,6 @@ class Cache():
   #   self.cache = list()
   #   ## List to hold all of the memory
   #   self.memory = list()
-  #   ## List to hold all fo the blocks
-  #   self.blocks = list()
   #   ## the number of physical address bits
   #   self.msize = 0
   #   ##  Cache size
@@ -68,8 +66,6 @@ class Cache():
     self.cache = list()
     ## List to hold all of the memory
     self.memory = list()
-    ## List to hold all fo the blocks
-    self.blocks = list()
     ## the number of physical address bits
     self.msize = 0
     ##  Cache size
@@ -219,9 +215,6 @@ class Cache():
   #   # defining cache as a list of sets, for each set pass (associativity (number of lines), block size, set index)
   #   self.cache = [set.Set(self.associativity, self.bsize, i) for i in range (self.ssize)]
   #
-  #   # defines the blocks of memory that we would overwrite/push into cache following a cache read miss. refer to notes
-  #   for i in range(0, self.msize, self.bsize):
-  #     self.blocks.append(self.memory[i: i + self.bsize])
   # @endcode
   def configure_cache(self):
 
@@ -273,11 +266,6 @@ class Cache():
     
     # defining cache as a list of sets, for each set pass (associativity (number of lines), block size, set index)
     self.cache = [set.Set(self.associativity, self.bsize, i) for i in range (self.ssize)]
-  
-    # defines the blocks of memory that we would overwrite/push into cache following a cache read miss. refer to notes
-    for i in range(0, 256, self.bsize):
-      self.blocks.append(self.memory[i: i + self.bsize])
-    # print("BLOCKS = ", self.blocks)
 
 
   ## Documenting the binary split function
@@ -302,19 +290,6 @@ class Cache():
     converted = [taghex.zfill(2), 0 if len(binary[1]) == 0 else int(binary[1], 2), int(binary[2], 2)]
     return converted
 
-
-  ## Documentation for find a block that contains the data
-  # @param self A pointer to itself
-  # @param address the address of the data
-  # @retval the block that contains the data
-  # @code
-  # def findBlock(self, address): 
-  #   # was initially a longer function but i found a way to condense.
-  #   return self.blocks[int(int(address, 16) / self.bsize)]        
-  # @endcode
-  def findBlock(self, address): 
-    # was initially a longer function but i found a way to condense.
-    return self.blocks[int(int(address, 16) / self.bsize)]        
 
 
   ## Documentation for the replacement policy
@@ -366,6 +341,7 @@ class Cache():
   # @endcode
   def replacement_policy(self, address, set, addressTag, dirty):
     lines = set.getLines()
+
     # obtain the block of memory (of size blocksize) for line replacement
     addressBlockStart = int(address, 16) - (int(address, 16) % self.bsize)
     block = self.memory[addressBlockStart: addressBlockStart + self.bsize]
@@ -389,14 +365,18 @@ class Cache():
 
       if (lines[evictionLine].attributes()[0] == 1):
         # if the line to evict is dirty, write the dirty block from cache to RAM, thus the block is no longer dirty
-        # use the set index that we are evicting, as well as the tag of the line to evict. gives us the address
+
+        # use the set index and the tag of line that we are evicting. gives us the starting address index of the memory block to overwrite.
         (tag, setIndex, blockOffset) = self.binarySplit(address)
         setIndexBinary = bin(setIndex)[2:]
         tagBinary = bin(int(lines[evictionLine].attributes()[2], 16))[2:]
         evictLineBinary = '0b{:<08d}'.format(int(tagBinary + setIndexBinary))
 
+        # obtain the block given the starting address of that block from prior computations. overwrite with the block from cache that had overwritten data (thus dirty)
         memBlockStart = int(evictLineBinary, 2) - (int(evictLineBinary, 2) % self.bsize)
         self.memory[memBlockStart: memBlockStart + self.bsize] = lines[evictionLine].attributes()[3]
+
+        # since block from cache and block in RAM are now equal, set dirty bit to 0
         lines[evictionLine].set_dirty(0)
 
       # print("\tDIRTY {} inputting new block of memory into cache at line index {}, where index used random replacement policy".format(dirty, evictionLine))
@@ -415,14 +395,18 @@ class Cache():
 
       if (lines[evictionLine].attributes()[0] == 1):
         # if the line to evict is dirty, write to RAM and then the blocks.
-        # use the set index that we are evicting, as well as the tag of the line to evict. gives us the address
+
+        # use the set index and the tag of line that we are evicting. gives us the starting address index of the memory block to overwrite.
         (tag, setIndex, blockOffset) = self.binarySplit(address)
         setIndexBinary = bin(setIndex)[2:]
         tagBinary = bin(int(lines[evictionLine].attributes()[2], 16))[2:]
         evictLineBinary = '0b{:<08d}'.format(int(tagBinary + setIndexBinary))
 
+        # obtain the block given the starting address of that block from prior computations. overwrite with the block from cache that had overwritten data (thus dirty)
         memBlockStart = int(evictLineBinary, 2) - (int(evictLineBinary, 2) % self.bsize)
         self.memory[memBlockStart: memBlockStart + self.bsize] = lines[evictionLine].attributes()[3]
+
+        # since block from cache and block in RAM are now equal, set dirty bit to 0
         lines[evictionLine].set_dirty(0)
       # print("\tinputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
@@ -667,9 +651,6 @@ class Cache():
           # write-through, write the data to block in RAM
           # print("write through, override data in RAM with data in cache")
           self.memory[int(address, 16)] = data[2:]
-
-          # update block which is underlied by memory
-          # self.findBlock(address[2:])[addressBlockOffset] = data[2:]
         break
     
     if not hit:
@@ -695,8 +676,6 @@ class Cache():
         # write-allocate miss => write-through hit, write to RAM and block. no-write-allocate miss => write to RAM
         # print("writing data to block in RAM")
         self.memory[int(address, 16)] = data[2:]
-        # update block which is underlied by memory
-        # self.findBlock(address[2:])[addressBlockOffset] = data[2:]
       else:
         print("not writing data to RAM, therefore it's dirty")
 
