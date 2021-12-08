@@ -353,7 +353,7 @@ class Cache():
         if lineValid == 0:
           # print("\tcache miss, tags are not equal but set is not full. found an empty line. fill empty line")
           lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-          lines[evictionLine].set_frequent()
+          lines[evictionLine].reset_frequent()
           break
         else:
           evictionLine += 1
@@ -382,7 +382,7 @@ class Cache():
 
       # print("\tDIRTY {} inputting new block of memory into cache at line index {}, where index used random replacement policy".format(dirty, evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-      lines[evictionLine].set_frequent()
+      lines[evictionLine].reset_frequent()
     elif self.replacement == 2:
       # print("\tcache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
       evictionLine, index = 0, 0
@@ -412,7 +412,7 @@ class Cache():
         lines[evictionLine].set_dirty(0)
       # print("\tinputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-      lines[evictionLine].set_frequent()
+      lines[evictionLine].reset_frequent()
     elif self.replacement == 3:
       # invoke least frequently used
       evictionLine, index = 0, 0
@@ -443,7 +443,7 @@ class Cache():
 
       # print("\tinputting new block of memory into cache at line index {}, where index used LFU policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-      lines[evictionLine].set_frequent()
+      lines[evictionLine].reset_frequent()
       
     return evictionLine
 
@@ -760,8 +760,7 @@ class Cache():
         print(attributes[1], attributes[0], attributes[2], end = " ")
         for val in vals:
           print(val, end = " ")
-        # print()
-        print(line.get_frequent())
+        print()
   
 
   ## Documentaion for the viewing the current state of the memory
