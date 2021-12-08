@@ -39,7 +39,7 @@ class Line():
     ## contains the address of the actual data fetched from the main memory
     self.tag = "00"
     ## contains the actual information fetched from the main memory
-    self.block = ['00' for i in range(blockSize)]
+    self.cacheblock = ['00' for i in range(blockSize)]
     ## contains the readIndex information
     self.readIndex = 0
 
@@ -52,8 +52,7 @@ class Line():
   #   return (self.dirty, self.valid, self.tag, self.block, self.readIndex)
   # @endcode
   def attributes(self):
-    return (self.dirty, self.valid, self.tag, self.block, self.readIndex)
-
+    return (self.dirty, self.valid, self.tag, self.cacheblock, self.readIndex)
 
 
   ## Documentation for updating line
@@ -73,7 +72,7 @@ class Line():
   def update_line(self, tag, data, dirty, readIndex):
     self.valid = 1
     self.tag = tag
-    self.block = data
+    self.cacheblock = data
     self.dirty = dirty
     self.readIndex = readIndex
 
