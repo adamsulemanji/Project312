@@ -26,7 +26,7 @@ class Set():
   # @param numLines number of lines per set
   # @param blockSize the size of the block
   # @param setNumber which set number it is
-  # @code
+  # @code 
   # def __init__(self, numLines, blockSize, setNumber):
   #   self.associativity = numLines
   #   self.blockSize = blockSize

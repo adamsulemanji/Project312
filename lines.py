@@ -82,7 +82,9 @@ class Line():
     return self.frequentIndex
   
   def set_frequent(self):
+    print("frequent index before was", self.frequentIndex, end=" ")
     self.frequentIndex += 1
+    print("but is now", self.frequentIndex)
 
   def set_dirty(self, dirty):
     self.dirty = dirty

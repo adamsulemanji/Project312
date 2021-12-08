@@ -237,7 +237,7 @@ class Cache():
     
     while True:
       self.replacement = int(input("replacement policy: "))
-      if self.replacement in [1,2]: break
+      if self.replacement in [1,2,3]: break
       else:
         print("ERROR: invalid replacement policy")
 
@@ -353,7 +353,7 @@ class Cache():
         if lineValid == 0:
           # print("\tcache miss, tags are not equal but set is not full. found an empty line. fill empty line")
           lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-          
+          lines[evictionLine].set_frequent()
           break
         else:
           evictionLine += 1
@@ -382,7 +382,7 @@ class Cache():
 
       # print("\tDIRTY {} inputting new block of memory into cache at line index {}, where index used random replacement policy".format(dirty, evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-      
+      lines[evictionLine].set_frequent()
     elif self.replacement == 2:
       # print("\tcache miss. tags are not equal but set is full. no empty lines. invoke replacement policy")
       evictionLine, index = 0, 0
@@ -412,7 +412,7 @@ class Cache():
         lines[evictionLine].set_dirty(0)
       # print("\tinputting new block of memory into cache at line index {}, where index used LRU policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-    
+      lines[evictionLine].set_frequent()
     elif self.replacement == 3:
       # invoke least frequently used
       evictionLine, index = 0, 0
@@ -443,7 +443,7 @@ class Cache():
 
       # print("\tinputting new block of memory into cache at line index {}, where index used LFU policy".format(evictionLine))
       lines[evictionLine].update_line(addressTag, block, dirty, self.recentIndex)
-
+      lines[evictionLine].set_frequent()
       
     return evictionLine
 
@@ -535,6 +535,7 @@ class Cache():
 
       # cache miss and all lines in specific set are filled. consult policy for replacement
       evictionLine = self.replacement_policy(address, set, addressTag, 0)
+
 
       # obtain the data from memory (which will be stored in the cache) indexed by memory address (hexa) converted to binary
       data = "0x" + str(self.memory[int(address, 16)])
@@ -744,7 +745,7 @@ class Cache():
     print("cache_size:",  self.csize, sep="")
     print("data_block_size:", self.bsize, sep="")
     print("associativity:", self.associativity, sep="")
-    print("replacement_policy:{}".format("random_replacement" if self.replacement == 1 else "least_recently_used"))
+    print("replacement_policy:{}".format("random_replacement" if self.replacement == 1 else ("least_recently_used" if self.replacement == 2 else "least_frequently_used")))
     print("write_hit_policy:{}".format("write_through" if self.writehit == 1 else "write_back"))
     print("write_miss_policy:{}".format("write_allocate" if self.writemiss == 1 else "write_no_allocate"))
     print("number_of_cache_hits:", self.hits, sep="")
@@ -759,7 +760,7 @@ class Cache():
         print(attributes[1], attributes[0], attributes[2], end = " ")
         for val in vals:
           print(val, end = " ")
-        print()
+        # print()
         print(line.get_frequent())
   
 
